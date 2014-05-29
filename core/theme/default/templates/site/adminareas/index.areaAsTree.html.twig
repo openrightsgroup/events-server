@@ -1,0 +1,26 @@
+{#
+ # @package Core
+ # @link http://ican.openacalendar.org/ OpenACalendar Open Source Software - Website
+ # @license http://ican.openacalendar.org/license.html 3-clause BSD
+ # @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
+ # @author James Baster <james@jarofgreen.co.uk>
+ #}
+<li class="area">
+	<span class="content{% if areaData.area.cachedFutureEvents %}WithEvents{% else %}WithNoEvents{% endif %}">
+		<input type="checkbox" name="area[]" value="{{ areaData.area.slug }}">
+		<a href="/area/{{ areaData.area.slugForUrl }}">{{ areaData.area.title }} {% if areaData.area.isDeleted %}[DELETED]{% endif %} </a>
+		{% if areaData.area.cachedFutureEvents %}
+			<span title="{{areaData.area.cachedFutureEvents}} future events"> ({{areaData.area.cachedFutureEvents}})</span>
+		{% endif %}		
+	</span>
+	<ul class="areasAdmin">
+		{% for areaChild in areaData.children %}
+			{% include 'site/adminareas/index.areaAsTree.html.twig' with {'areaData':areaChild} %}
+		{% endfor %}
+		<li class="area">
+			<span class="contentNew"><a href="/admin/areas/{{ country.twoCharCode }}/new?parentAreaSlug={{ areaData.area.slug }}">New area inside "{{ areaData.area.title }}"</a></span>
+		</li>
+	</ul>
+</li>
+
+
