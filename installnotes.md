@@ -215,9 +215,7 @@ Add:
 
 
 ## Caches
-20 * * * *  php /orgevents-web/extension/OpenTechCalendar/cli/cacheLegacyLocationData.php  >>  /var/log/orgevents/cacheLegacyLocationData.log 2>&1
 30 * * * * php /orgevents-web/core/cli/updateAreaFutureEventsCache.php >> /var/log/orgevents/updateAreaFutureEventsCache.log 2>&1
-35 * * * * php /orgevents-web/extension/OpenTechCalendar/cli/buildAreaTree.php >> /var/log/orgevents/buildAreaTree.log 2>&1
 40 * * * * php /orgevents-web/core/cli/updateAreaBoundsCache.php >> /var/log/orgevents/updateAreaBoundsCache.log 2>&1
 50 * * * * php /orgevents-web/core/cli/updateAreaParentCache.php >> /var/log/orgevents/updateAreaParentCache.log 2>&1
 
