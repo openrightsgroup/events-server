@@ -159,10 +159,10 @@ Edit the file /orgevents-web/update
 
 ````
 git pull
+cp -R /orgevents-latest/vendor/* /orgevents-web/vendor/
 rm /orgevents-web/cache/templates.web/*/*/*.php
 chown -R www-data:www-data /orgevents-web/cache/templates.web/
 rm /orgevents-web/cache/templates.cli/*/*/*.php
-rm -R /tmp/OpenTechCalendar3Cache/media
 cat config.live.public.php > config.new.php
 cat config.live.private.php >> config.new.php
 diff config.new.php config.php
@@ -223,6 +223,13 @@ Add:
 5 * * * * php /orgevents-web/core/cli/updateHistoryChangedFlags.php >> /var/log/orgevents/updateHistoryChangedFlags.log 2>&1
 ````
 
+
+## UK Postcodes
+
+Some extra data needs to be installed.
+
+Follow the instructions on http://docs.openacalendar.org/en/master/serveradministrators/extension.AddressCodeGBOpenCodePoint/installation.html 
+in both folders /orgevents-web/ and  /orgevents-latest/
 
 ## Backups
 
