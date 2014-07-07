@@ -73,8 +73,8 @@ $CONFIG->userAccountVerificationSecondsBetweenAllowedSends = 900;  // 15 mins
 // $CONFIG->tmpFileCacheLocation = '/tmp/OpenTechCalendar3Cache/';
 // $CONFIG->tmpFileCacheCreationPermissions = 0733;
 
-$CONFIG->logFile = '/var/log/orgevents/opentechcalendar3.log';
-$CONFIG->logFileParseDateTimeRange = '/var/log/orgevents/openTechCalendar3ParseDateTimeRange.log';
+$CONFIG->logFile = '/var/log/orgevents/orgevents.log';
+$CONFIG->logFileParseDateTimeRange = '/var/log/orgevents/orgevents.log';
 
 $CONFIG->sysAdminTimeZone = "Europe/London";
 
