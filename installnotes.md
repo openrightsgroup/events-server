@@ -19,6 +19,15 @@ $CONFIG->webCommonSessionDomain = "cal-dev-1.default.orgtech.uk0.bigv.io";
 ````
 And change them all to whatever domain your test server will have.
 
+
+If you plan to be doing coding, you should also set in those 2 files:
+
+````
+$CONFIG->isDebug = true;
+````
+
+This will give you better error messages. Also it won't send any emails, but instead write the contents to /tmp for you to inspect.
+
 ## Let's get started
 
 ````
