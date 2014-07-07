@@ -102,7 +102,7 @@ $CONFIG->upcomingEventsForUserEmailHTMLListsEvents = 5;
 
 $CONFIG->siteSeenCookieStoreForDays = 30;
 
-$CONFIG->extensions = array('AddressCodeGBOpenCodePoint');
+$CONFIG->extensions = array('AddressCodeGBOpenCodePoint','Facebook','Meetup');
 
 $CONFIG->mediaNormalSize = 500;
 $CONFIG->mediaThumbnailSize = 100;
