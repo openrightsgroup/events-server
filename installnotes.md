@@ -1,5 +1,23 @@
 # Installing on Debian Stable
 
+## Assumptions, and Live vs Test
+
+This assumes you have a fresh Debian Stable box and are installing the live system.
+
+If you want to install a test enviroment, boot up Debian Stable in VirtualBox or whatever you prefer. Follow the instructions below, with one exception:
+
+When you create /orgevents-latest/config.live.private.php and /orgevents-latest/config.live.private.php add the following lines:
+
+````
+$CONFIG->webIndexDomain = "cal-dev-1.default.orgtech.uk0.bigv.io";
+$CONFIG->webSiteDomain = "cal-dev-1.default.orgtech.uk0.bigv.io";
+$CONFIG->webSysAdminDomain = "cal-dev-1.default.orgtech.uk0.bigv.io";
+$CONFIG->webIndexDomainSSL = "cal-dev-1.default.orgtech.uk0.bigv.io";
+$CONFIG->webSiteDomainSSL = "cal-dev-1.default.orgtech.uk0.bigv.io";
+$CONFIG->webSysAdminDomainSSL = "cal-dev-1.default.orgtech.uk0.bigv.io";
+$CONFIG->webCommonSessionDomain = "cal-dev-1.default.orgtech.uk0.bigv.io";
+````
+And change them all to whatever domain your test server will have.
 
 ## Let's get started
 
