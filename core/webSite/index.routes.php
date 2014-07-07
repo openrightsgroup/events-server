@@ -62,11 +62,19 @@ $app->match('/event/{slug}/userAttendance.html', "site\controllers\EventControll
 		->assert('slug', FRIENDLY_SLUG_REGEX); 
 $app->match('/event/{slug}/history', "site\controllers\EventController::history")
 		->assert('slug', FRIENDLY_SLUG_REGEX); 
-$app->match('/event/{slug}/edit', "site\controllers\EventController::edit")
+$app->match('/event/{slug}/edit', "site\controllers\EventController::editSplash")
+		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appVerifiedEditorUserRequired)
+		->before($canChangeSite); 
+$app->match('/event/{slug}/edit/details', "site\controllers\EventController::editDetails")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
 		->before($appVerifiedEditorUserRequired)
 		->before($canChangeSite); 
 $app->match('/event/{slug}/edit/venue', "site\controllers\EventController::editVenue")
+		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appVerifiedEditorUserRequired)
+		->before($canChangeSite); 
+$app->match('/event/{slug}/edit/future', "site\controllers\EventController::editFuture")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
 		->before($appVerifiedEditorUserRequired)
 		->before($canChangeSite); 
@@ -104,7 +112,17 @@ $app->match('/event/{slug}/moveToArea', "site\controllers\EventController::moveT
 		->before($appVerifiedEditorUserRequired)
 		->before($featurePhysicalEventsRequired)		
 		->before($canChangeSite); 
-
+$app->match('/event/{slug}/edit/tags', "site\controllers\EventController::editTags")
+		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appVerifiedEditorUserRequired)
+		->before($featureTagRequired)
+		->before($canChangeSite); 
+$app->match('/event/{slug}/edit/groups', "site\controllers\EventController::editGroups")
+		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appVerifiedEditorUserRequired)
+		->before($featureGroupRequired)
+		->before($canChangeSite); 
+		
 $app->match('/group', "site\controllers\GroupListController::index"); 
 $app->match('/group/', "site\controllers\GroupListController::index"); 
 
@@ -121,15 +139,18 @@ $app->match('/group/{slug}/history', "site\controllers\GroupController::history"
 		->assert('slug', FRIENDLY_SLUG_REGEX); 
 $app->match('/group/{slug}/media', "site\controllers\GroupController::media")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appFileStoreRequired)
 		->before($canChangeSite); 
 $app->match('/group/{slug}/media/add/existing', "site\controllers\GroupController::mediaAddExisting")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
 		->before($appVerifiedEditorUserRequired)
+		->before($appFileStoreRequired)
 		->before($canChangeSite);
 $app->match('/group/{slug}/media/{mediaslug}/remove', "site\controllers\GroupController::mediaRemove")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
 		->assert('mediaslug', '\d+')
 		->before($appVerifiedEditorUserRequired)
+		->before($appFileStoreRequired)
 		->before($canChangeSite); 
 $app->match('/group/{slug}/edit', "site\controllers\GroupController::edit")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
@@ -223,6 +244,11 @@ $app->match('/venue/{slug}/edit', "site\controllers\VenueController::edit")
 		->before($appVerifiedEditorUserRequired)
 		->before($featurePhysicalEventsRequired)		
 		->before($canChangeSite); 
+$app->match('/venue/{slug}/delete', "site\controllers\VenueController::delete")
+		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appVerifiedEditorUserRequired)
+		->before($featurePhysicalEventsRequired)		
+		->before($canChangeSite); 
 $app->match('/venue/{slug}/moveToArea', "site\controllers\VenueController::moveToArea")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
 		->before($appVerifiedEditorUserRequired)
@@ -240,14 +266,17 @@ $app->match('/venue/{slug}/history', "site\controllers\VenueController::history"
 		->assert('slug', FRIENDLY_SLUG_REGEX); 
 $app->match('/venue/{slug}/media', "site\controllers\VenueController::media")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appFileStoreRequired)
 		->before($canChangeSite);
 $app->match('/venue/{slug}/media/add/existing', "site\controllers\VenueController::mediaAddExisting")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
+		->before($appFileStoreRequired)
 		->before($appVerifiedEditorUserRequired)
 		->before($canChangeSite);
 $app->match('/venue/{slug}/media/{mediaslug}/remove', "site\controllers\VenueController::mediaRemove")
 		->assert('slug', FRIENDLY_SLUG_REGEX)
 		->assert('mediaslug', '\d+')
+		->before($appFileStoreRequired)
 		->before($appVerifiedEditorUserRequired)
 		->before($canChangeSite); 
 
@@ -317,6 +346,11 @@ $app->match('/watch/', "site\controllers\IndexController::watch")
 		->before($canChangeSite);
 
 
+$app->match('/tag', "site\controllers\TagListController::index"); 
+$app->match('/tag/', "site\controllers\TagListController::index"); 
+
+$app->match('/tag/{slug}', "site\controllers\TagController::show"); 
+$app->match('/tag/{slug}/', "site\controllers\TagController::show"); 
 
 $app->match('/admin', "site\controllers\AdminController::index")
 		->before($appVerifiedAdminUserRequired);
@@ -349,6 +383,7 @@ $app->match('/admin/countries', "site\controllers\AdminController::countries")
 		->before($appVerifiedAdminUserRequired)
 		->before($canChangeSite);
 $app->match('/admin/media', "site\controllers\AdminController::media")
+		->before($appFileStoreRequired)
 		->before($appVerifiedAdminUserRequired)
 		->before($canChangeSite);
 $app->match('/admin/sendemail', "site\controllers\SendEmailNewController::index")
@@ -380,7 +415,29 @@ $app->match('/admin/areas/{countryslug}/action', "site\controllers\AdminAreasCon
 		->before($appVerifiedAdminUserRequired)
 		->before($canChangeSite);
 
-
+$app->match('/admin/tag/', "site\controllers\AdminController::listTags")
+		->before($appVerifiedAdminUserRequired);
+$app->match('/admin/tag/new', "site\controllers\AdminController::newTag")
+		->before($appVerifiedAdminUserRequired)
+		->before($canChangeSite);
+$app->match('/admin/tag/{slug}', "site\controllers\AdminTagController::show")
+		->before($appVerifiedAdminUserRequired)
+		->assert('slug', FRIENDLY_SLUG_REGEX); 
+$app->match('/admin/tag/{slug}/edit', "site\controllers\AdminTagController::edit")
+		->before($appVerifiedAdminUserRequired)
+		->before($canChangeSite)
+		->assert('slug', FRIENDLY_SLUG_REGEX); 
+$app->match('/admin/tag/{slug}/delete', "site\controllers\AdminTagController::delete")
+		->before($appVerifiedAdminUserRequired)
+		->before($canChangeSite)
+		->assert('slug', FRIENDLY_SLUG_REGEX); 
+$app->match('/admin/tag/{slug}/undelete', "site\controllers\AdminTagController::undelete")
+		->before($appVerifiedAdminUserRequired)
+		->before($canChangeSite)
+		->assert('slug', FRIENDLY_SLUG_REGEX); 
+		
+		
+		
 $app->match('/map', "site\controllers\MapController::index");
 $app->match('/map/', "site\controllers\MapController::index");
 
@@ -462,24 +519,34 @@ $app->match('/curatedlist/{slug}/event/{eslug}/add', "site\controllers\CuratedLi
 		->before($appVerifiedEditorUserRequired)
 		->before($featureCuratedListRequired);
 
-$app->match('/media', "site\controllers\MediaListController::index"); 
-$app->match('/media/', "site\controllers\MediaListController::index"); 
+$app->match('/media', "site\controllers\MediaListController::index")
+		->before($appFileStoreRequired); 
+$app->match('/media/', "site\controllers\MediaListController::index")
+		->before($appFileStoreRequired); 
 
 $app->match('/media/{slug}', "site\controllers\MediaController::show")
-		->assert('slug', '\d+'); 
+		->assert('slug', '\d+')
+		->before($appFileStoreRequired); 
 $app->match('/media/{slug}/', "site\controllers\MediaController::show")
-		->assert('slug', '\d+'); 
+		->assert('slug', '\d+')
+		->before($appFileStoreRequired); 
 $app->match('/media/{slug}/thumbnail', "site\controllers\MediaController::imageThumbnail")
-		->assert('slug', '\d+'); 
+		->assert('slug', '\d+')
+		->before($appFileStoreRequired); 
 $app->match('/media/{slug}/normal', "site\controllers\MediaController::imageNormal")
-		->assert('slug', '\d+'); 
+		->assert('slug', '\d+')
+		->before($appFileStoreRequired); 
 $app->match('/media/{slug}/full', "site\controllers\MediaController::imageFull")
-		->assert('slug', '\d+'); 
+		->assert('slug', '\d+')
+		->before($appFileStoreRequired); 
 
 
 $app->match('/stopWatchingFromEmail/{userid}/{code}', "site\controllers\IndexController::stopWatchingFromEmail")
 		->assert('userid', '\d+')
 		->before($canChangeSite); 
 
+// This route is duplicated from the index site so that JavaScript on the Site domain can get to it.
+$app->match('/me/notification.json', "index\controllers\CurrentUserController::listNotificationsJson") 
+		->before($appUserRequired); 
 
 

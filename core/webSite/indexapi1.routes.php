@@ -40,6 +40,18 @@ $app->match('/api1/group/{slug}/events.create.atom', "siteapi1\controllers\Group
 $app->match('/api1/group/{slug}/events.before.atom', "siteapi1\controllers\GroupController::atomBefore")
 		->assert('slug', '\d+'); 
 
+$app->match('/api1/tag/{slug}/events.ical', "siteapi1\controllers\TagController::ical")
+		->assert('slug', '\d+'); 
+$app->match('/api1/tag/{slug}/events.json', "siteapi1\controllers\TagController::json")
+		->assert('slug', '\d+'); 
+$app->match('/api1/tag/{slug}/events.jsonp', "siteapi1\controllers\TagController::jsonp")
+		->assert('slug', '\d+'); 
+$app->match('/api1/tag/{slug}/events.create.atom', "siteapi1\controllers\TagController::atomCreate")
+		->assert('slug', '\d+'); 
+$app->match('/api1/tag/{slug}/events.before.atom', "siteapi1\controllers\TagController::atomBefore")
+		->assert('slug', '\d+'); 
+		
+		
 $app->match('/api1/area/{slug}/events.ical', "siteapi1\controllers\AreaController::ical")
 		->assert('slug', '\d+'); 
 $app->match('/api1/area/{slug}/events.json', "siteapi1\controllers\AreaController::json")
@@ -88,3 +100,9 @@ $app->match('/api1/country/{slug}/events.before.atom', "siteapi1\controllers\Cou
 
 
 $app->match('/api1/histories.atom', "siteapi1\controllers\HistoryListController::atom"); 
+
+
+$app->match("/api1/person/{username}/events.ical", "siteapi1\controllers\PublicUserController::ical");
+$app->match("/api1/person/{username}/events.json", "siteapi1\controllers\PublicUserController::json");
+$app->match("/api1/person/{username}/events.jsonp", "siteapi1\controllers\PublicUserController::jsonp");
+

@@ -1,0 +1,143 @@
+{#
+ # @package Core
+ # @link http://ican.openacalendar.org/ OpenACalendar Open Source Software - Website
+ # @license http://ican.openacalendar.org/license.html 3-clause BSD
+ # @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
+ # @author James Baster <james@jarofgreen.co.uk>
+ #}
+{% extends 'site/event/page.html.twig' %}
+
+
+{% block pageTitle %}Edit {{ event.summaryDisplay }} - {% endblock %} 
+
+{% block innerContent %}
+
+	<form action="#" method="post" class="styled">
+		<input type="hidden" name="CSFRToken" value="{{ getCSFRToken() }}">
+		<input type="hidden" name="submitted" value="yes">
+		
+		<p>Do you want to change these future events to?</p>
+		
+		<ul class="events">
+			{% for event in futureEvents %}
+				<li class="event">
+					<div class="dateTimeIcon">
+						<time datetime="{{ event.getStartAt|tolocaltimeformatted('c', currentTimeZone) }}">
+							<div class="dateIcon">
+								<span class="startDay">{{ event.getStartAt|tolocaltimeformatted('D', currentTimeZone) }}</span>
+								<span class="startDate">{{ event.getStartAt|tolocaltimeformatted('jS', currentTimeZone) }}</span>
+								<span class="startMonthYear">{{ event.getStartAt|tolocaltimeformatted('M \'y', currentTimeZone) }}</span>
+							</div>
+							<div class="timeIcon">
+								<span class="startTime">{{ event.getStartAt|tolocaltimeformatted12or24hourclock('g:ia', 'H:i', currentUserClock12Hour, currentTimeZone) }}</span>
+							</div>
+						</time>				
+					</div>
+					<div class="title">
+						{{ event.summaryDisplay}}
+					</div>
+						
+					<ul>
+						{% if futureEventsProposedChanges[event.slug].getSummaryChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldSummary" value="1" {% if futureEventsProposedChanges[event.slug].getSummaryChangeSelected %}checked="checked"{% endif %}>
+									Change Summary to: {{  futureEventsProposedChanges[event.slug].getSummary }}
+								</label>
+							</li>
+						{% endif %}
+						{% if futureEventsProposedChanges[event.slug].getDescriptionChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldDescription" value="1" {% if futureEventsProposedChanges[event.slug].getDescriptionChangeSelected %}checked="checked"{% endif %}>
+									Change Description
+								</label>
+							</li>
+						{% endif %}
+						{% if futureEventsProposedChanges[event.slug].countryAreaVenueIdChangePossible  %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldCountryAreaVenue" value="1" {% if futureEventsProposedChanges[event.slug].countryAreaVenueIdChangeSelected  %}checked="checked"{% endif %}>
+									Change Country, Area and Venue
+								</label>
+							</li>
+						{% endif %}
+						{% if futureEventsProposedChanges[event.slug].getTimezoneChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldTimezone" value="1" {% if futureEventsProposedChanges[event.slug].getTimezoneChangeSelected %}checked="checked"{% endif %}>
+									Change Timezone
+								</label>
+							</li>
+						{% endif %}						
+						{% if futureEventsProposedChanges[event.slug].getUrlChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldUrl" value="1" {% if futureEventsProposedChanges[event.slug].getUrlChangeSelected %}checked="checked"{% endif %}>
+									Change Information Url
+								</label>
+							</li>
+						{% endif %}
+						{% if futureEventsProposedChanges[event.slug].getTicketUrlChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldTicketUrl" value="1" {% if futureEventsProposedChanges[event.slug].getTicketUrlChangeSelected %}checked="checked"{% endif %}>
+									Change Ticket Url
+								</label>
+							</li>
+						{% endif %}
+						{% if futureEventsProposedChanges[event.slug].getIsVirtualChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldIsVirtual" value="1" {% if futureEventsProposedChanges[event.slug].getIsVirtualChangeSelected %}checked="checked"{% endif %}>
+									Is Virtual
+								</label>
+							</li>
+						{% endif %}
+						{% if futureEventsProposedChanges[event.slug].getIsPhysicalChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldIsPhysical" value="1" {% if futureEventsProposedChanges[event.slug].getIsPhysicalChangeSelected %}checked="checked"{% endif %}>
+									Is Physical
+								</label>
+							</li>
+						{% endif %}
+						{% if futureEventsProposedChanges[event.slug].getStartEndAtChangePossible %}
+							<li>
+								<label>
+									<input type="checkbox" name="eventSlug{{ event.slug }}fieldStartEnd" value="1" checked="checked">
+									Change Start and End to:
+									{% if currentTimeZone == event.timezone %}
+										{% include 'site/common/eventFromToLine.html.twig' with {'startAt': futureEventsProposedChanges[event.slug].getStartAt, 'endAt': futureEventsProposedChanges[event.slug].getEndAt, 'timezone':currentTimeZone, 'showTimeZone':currentSite.cachedIsMultipleTimezones} %}
+									{% else %}
+										{% include 'site/common/eventFromToLine.html.twig' with {'startAt': futureEventsProposedChanges[event.slug].getStartAt, 'endAt': futureEventsProposedChanges[event.slug].getEndAt, 'timezone':event.timezone, 'showTimeZone':true} %}				
+										{% include 'site/common/eventFromToLine.html.twig' with {'startAt': futureEventsProposedChanges[event.slug].getStartAt, 'endAt': futureEventsProposedChanges[event.slug].getEndAt, 'timezone':currentTimeZone, 'showTimeZone':true} %}
+									{% endif %}
+								</label>
+							</li>
+						{% endif %}
+					</ul>
+						
+					<div class="afterEventListing"></div>
+				</li>
+			{% endfor %}
+		</ul>
+		
+		
+		<input type="submit"  value="Save" />	
+	</form>
+
+
+	<form action="#" method="post" class="styled" onsubmit="return confirm('Are you sure you want to cancel?');">
+		<input type="hidden" name="CSFRToken" value="{{ getCSFRToken() }}">
+		<input type="hidden" name="submitted" value="cancel">
+		<input type="submit"  value="Cancel" />	
+	</form>
+
+
+{% endblock %}
+
+
+{% block scripts %}
+{% endblock %}
+

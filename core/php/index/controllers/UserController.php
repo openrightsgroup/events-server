@@ -38,10 +38,8 @@ class UserController {
 	}
 	
 	
-	function register(Request $request, Application $app) {
-		global $CONFIG;
-		
-		if (!$CONFIG->allowNewUsersToRegister) {
+	function register(Request $request, Application $app) {		
+		if (!$app['config']->allowNewUsersToRegister) {
 			return $app['twig']->render('index/user/register.notallowed.html.twig', array(
 			));
 		}
@@ -90,9 +88,7 @@ class UserController {
 		
 	}
 	
-	function login(Request $request, Application $app) {
-		global $CONFIG;
-				
+	function login(Request $request, Application $app) {				
 		$form = $app['form.factory']->create(new LogInUserForm());
 		
 		if ('POST' == $request->getMethod()) {
@@ -186,9 +182,7 @@ class UserController {
 	}
 	
 	
-	function forgot(Request $request, Application $app) {
-		global $CONFIG;
-		
+	function forgot(Request $request, Application $app) {		
 		$form = $app['form.factory']->create(new ForgotUserForm());
 		
 		if ('POST' == $request->getMethod()) {
@@ -208,7 +202,7 @@ class UserController {
 						$form->addError(new FormError('There was a problem with this account and it has been closed: '.$user->getClosedBySysAdminReason()));
 					} else {
 						$aurr = new UserAccountResetRepository();
-						$uarLast = $aurr->loadRecentlyUnusedSentForUserAccountId($user->getId(), $CONFIG->resetEmailsGapBetweenInSeconds);
+						$uarLast = $aurr->loadRecentlyUnusedSentForUserAccountId($user->getId(), $app['config']->resetEmailsGapBetweenInSeconds);
 						if ($uarLast) {
 							$form->addError(new FormError('An email was sent recently; please try again soon'));
 						} else {
@@ -285,9 +279,7 @@ class UserController {
 	}
 	
 	
-	function emails($id, $code, Request $request, Application $app) {
-		global $FLASHMESSAGES;
-		
+	function emails($id, $code, Request $request, Application $app) {		
 		$userRepository = new UserAccountRepository();
 		
 		if (userGetCurrent() && userGetCurrent()->getId() == $id) {
@@ -312,14 +304,16 @@ class UserController {
 		}
 		
 		
-		$form = $app['form.factory']->create(new UserEmailsForm(), $user);
+		$ourForm = new UserEmailsForm($app['extensions'], $user);
+		$form = $app['form.factory']->create($ourForm, $user);
 		
 		if ('POST' == $request->getMethod()) {
 			$form->bind($request);
 
 			if ($form->isValid()) {
 				$userRepository->editEmailsOptions($user);
-				$FLASHMESSAGES->addMessage("Options Changed.");
+				$ourForm->savePreferences($form);
+				$app['flashmessages']->addMessage("Options Changed.");
 				return $app->redirect("/");
 			}
 		}

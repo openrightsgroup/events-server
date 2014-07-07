@@ -8,12 +8,14 @@ use Symfony\Component\HttpFoundation\Request;
 use models\VenueModel;
 use models\AreaModel;
 use repositories\VenueRepository;
+use repositories\EventRepository;
 use repositories\CountryRepository;
 use repositories\builders\EventRepositoryBuilder;
 use repositories\builders\HistoryRepositoryBuilder;
 
 use repositories\builders\filterparams\EventFilterParams;
 use site\forms\UploadNewMediaForm;
+use site\forms\VenueDeleteForm;
 use repositories\MediaRepository;
 use repositories\AreaRepository;
 use repositories\MediaInVenueRepository;
@@ -93,7 +95,7 @@ class VenueController {
 		$this->parameters['eventListFilterParams']->getEventRepositoryBuilder()->setVenue($this->parameters['venue']);
 		if (userGetCurrent()) {
 			$this->parameters['eventListFilterParams']->getEventRepositoryBuilder()->setUserAccount(userGetCurrent(), true);
-		}	
+		}
 		
 		$this->parameters['events'] = $this->parameters['eventListFilterParams']->getEventRepositoryBuilder()->fetchAll();
 		
@@ -126,11 +128,12 @@ class VenueController {
 
 			if ($form->isValid()) {
 				
-				if (isset($_POST['areas']) && is_array($_POST['areas'])) {
+				$area = null;
+				
+				if (is_array($request->request->get('areas'))) {
 					$areaRepository = new AreaRepository();
 					$countryRepository = new CountryRepository();
-					$area = null;
-					foreach ($_POST['areas'] as $areaCode) {
+					foreach ($request->request->get('areas') as $areaCode) {
 						if (substr($areaCode, 0, 9) == 'EXISTING:') {
 							$area = $areaRepository->loadBySlug($app['currentSite'], substr($areaCode,9));
 						} else if (substr($areaCode, 0, 4) == 'NEW:') {
@@ -141,9 +144,12 @@ class VenueController {
 							$area = $newArea;
 						}
 					}
-					if ($area) {
-						$this->parameters['venue']->setAreaId($area->getId());
-					}
+				}
+				
+				if ($area) {
+					$this->parameters['venue']->setAreaId($area->getId());
+				} else {
+					$this->parameters['venue']->setAreaId(null);
 				}
 				
 				$venueRepository = new VenueRepository();
@@ -219,9 +225,7 @@ class VenueController {
 	}
 	
 	
-	function media($slug, Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES;
-		
+	function media($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Venue does not exist.");
 		}
@@ -246,7 +250,7 @@ class VenueController {
 						$mediaInVenueRepo = new MediaInVenueRepository();
 						$mediaInVenueRepo->add($media, $this->parameters['venue'], userGetCurrent());
 						
-						$FLASHMESSAGES->addMessage('Picuture added!');
+						$app['flashmessages']->addMessage('Picture added!');
 						return $app->redirect("/venue/".$this->parameters['venue']->getSlug());
 						
 					}
@@ -267,40 +271,36 @@ class VenueController {
 		return $app['twig']->render('site/venue/media.html.twig', $this->parameters);
 	}
 	
-	function mediaRemove($slug, $mediaslug, Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES, $WEBSESSION;
-		
+	function mediaRemove($slug, $mediaslug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Venue does not exist.");
 		}
 		
-		if (isset($_POST) && isset($_POST['CSFRToken']) && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			$mediaRepository = new MediaRepository();
 			$media = $mediaRepository->loadBySlug($app['currentSite'], $mediaslug);
 			if ($media) {
 				$mediaInVenueRepo = new MediaInVenueRepository();
 				$mediaInVenueRepo->remove($media, $this->parameters['venue'], userGetCurrent());
-				$FLASHMESSAGES->addMessage('Removed!');
+				$app['flashmessages']->addMessage('Removed!');
 			}
 		}
 		
 		return $app->redirect("/venue/".$this->parameters['venue']->getSlug().'/media');
 	}
 	
-	function mediaAddExisting($slug, Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES, $WEBSESSION;
-		
+	function mediaAddExisting($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Venue does not exist.");
 		}
 			
-		if (isset($_POST) && isset($_POST['addMedia']) && isset($_POST['CSFRToken']) && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('addMedia') && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			$mediaRepository = new MediaRepository();
-			$media = $mediaRepository->loadBySlug($app['currentSite'], $_POST['addMedia']);
+			$media = $mediaRepository->loadBySlug($app['currentSite'], $request->request->get('addMedia'));
 			if ($media) {
 				$mediaInVenueRepo = new MediaInVenueRepository();
 				$mediaInVenueRepo->add($media, $this->parameters['venue'], userGetCurrent());
-				$FLASHMESSAGES->addMessage('Added!');
+				$app['flashmessages']->addMessage('Added!');
 				return $app->redirect("/venue/".$this->parameters['venue']->getSlug().'/');
 			}
 		}
@@ -314,20 +314,18 @@ class VenueController {
 		return $app['twig']->render('site/venue/media.add.existing.html.twig', $this->parameters);
 	}
 	
-	function moveToArea($slug, Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES, $WEBSESSION;
-	
+	function moveToArea($slug, Request $request, Application $app) {	
 		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Venue does not exist.");
 		}
 		
-		if (isset($_POST) && isset($_POST['area']) && isset($_POST['CSFRToken']) && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('area') && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			
-			if ($_POST['area'] == 'new' && trim($_POST['newAreaTitle']) && $this->parameters['country']) {
+			if ($request->request->get('area') == 'new' && trim($request->request->get('newAreaTitle')) && $this->parameters['country']) {
 				
 				$area = new AreaModel();
-				$area->setTitle(trim($_POST['newAreaTitle']));
+				$area->setTitle(trim($request->request->get('newAreaTitle')));
 				
 				$areaRepository = new AreaRepository();
 				$areaRepository->create($area, $this->parameters['area'], $app['currentSite'], $this->parameters['country'], userGetCurrent());
@@ -338,18 +336,18 @@ class VenueController {
 				
 				$areaRepository->buildCacheAreaHasParent($area);
 				
-				$FLASHMESSAGES->addMessage('Thank you; venue updated!');
+				$app['flashmessages']->addMessage('Thank you; venue updated!');
 				
-			} elseif (intval($_POST['area'])) {
+			} elseif (intval($request->request->get('area'))) {
 				
 				$areaRepository = new AreaRepository();
-				$area = $areaRepository->loadBySlug($app['currentSite'], $_POST['area']);
+				$area = $areaRepository->loadBySlug($app['currentSite'], $request->request->get('area'));
 				if ($area) {
 
 					$this->parameters['venue']->setAreaId($area->getId());
 					$venueRepository = new VenueRepository();
 					$venueRepository->edit($this->parameters['venue'], userGetCurrent());
-					$FLASHMESSAGES->addMessage('Thank you; venue updated!');
+					$app['flashmessages']->addMessage('Thank you; venue updated!');
 				}
 			
 			}
@@ -360,6 +358,48 @@ class VenueController {
 		
 		return $app->redirect("/venue/".$this->parameters['venue']->getSlug().'/');
 
+	}
+	
+	
+	
+	function delete($slug, Request $request, Application $app) {
+		if (!$this->build($slug, $request, $app)) {
+			$app->abort(404, "Venue does not exist.");
+		}
+
+		if ($this->parameters['venue']->getIsDeleted()) {
+			die("No"); // TODO
+		}
+		
+		$form = $app['form.factory']->create(new VenueDeleteForm());
+		
+		if ('POST' == $request->getMethod()) {
+			$form->bind($request);
+
+			if ($form->isValid()) {
+				
+				$eventRepository = new EventRepository();
+				$eventRepository->moveAllFutureEventsAtVenueToNoSetVenue($this->parameters['venue'], userGetCurrent());
+
+				$venueRepository = new VenueRepository();
+				$venueRepository->delete($this->parameters['venue'], userGetCurrent());
+				
+				return $app->redirect("/venue/".$this->parameters['venue']->getSlug());
+				
+			}
+		}
+		
+		
+		$rb = new EventRepositoryBuilder();
+		$rb->setVenue($this->parameters['venue']);
+		$rb->setAfterNow(true);
+		$rb->setIncludeDeleted(false);
+		$this->parameters['events'] = $rb->fetchAll();
+		
+		$this->parameters['form'] = $form->createView();
+		
+		return $app['twig']->render('site/venue/delete.html.twig', $this->parameters);
+		
 	}
 	
 }

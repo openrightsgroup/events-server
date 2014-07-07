@@ -15,6 +15,7 @@ use repositories\UserWatchesSiteRepository;
 use repositories\UserWatchesSiteStopRepository;
 use repositories\SiteAccessRequestRepository;
 use repositories\builders\UserAccountRepositoryBuilder;
+use repositories\UserNotificationRepository;
 
 /**
  *
@@ -45,22 +46,18 @@ class IndexController {
 	}
 	
 	function myTimeZone(Application $app) {
-		global $CONFIG;
-		
 		return $app['twig']->render('site/index/myTimeZone.html.twig', array(
 			));
 	}
 	
 	
 	
-	function watch(Application $app) {
-		global $CONFIG, $WEBSESSION;
-		
-		if (isset($_POST['action'])  && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+	function watch(Request $request, Application $app) {		
+		if ($request->request->get('action')  && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			$repo = new UserWatchesSiteRepository();
-			if ($_POST['action'] == 'watch') {
+			if ($request->request->get('action') == 'watch') {
 				$repo->startUserWatchingSite(userGetCurrent(), $app['currentSite']);
-			} else if ($_POST['action'] == 'unwatch') {
+			} else if ($request->request->get('action') == 'unwatch') {
 				$repo->stopUserWatchingSite(userGetCurrent(), $app['currentSite']);
 			}
 			// redirect here because if we didn't the twig global and $app vars would be wrong (the old state)
@@ -72,9 +69,7 @@ class IndexController {
 			));
 	}
 	
-	function stopWatchingFromEmail($userid, $code, Application $app) {
-		global $FLASHMESSAGES, $WEBSESSION;
-		
+	function stopWatchingFromEmail($userid, $code, Request $request, Application $app) {		
 		$userRepo = new UserAccountRepository();
 		$user = $userRepo->loadByID($userid);
 		if (!$user) {
@@ -96,11 +91,11 @@ class IndexController {
 			die("You don't watch this site"); // TODO
 		}
 		
-		if (isset($_POST['action']) && $_POST['action'] == 'unwatch' && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('action') == 'unwatch' && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			$userWatchesSiteRepo->stopUserWatchingSite($user, $app['currentSite']);
 			// redirect here because if we didn't the twig global and $app vars would be wrong (the old state)
 			// this is an easy way to get round that.
-			$FLASHMESSAGES->addMessage("You have stopped watching this.");
+			$app['flashmessages']->addMessage("You have stopped watching this.");
 			return $app->redirect('/');
 		}
 		
@@ -111,43 +106,49 @@ class IndexController {
 	}
 	
 	
-	function requestAccess(Application $app) {
-		global $CONFIG, $WEBSESSION, $FLASHMESSAGES;
-		
-		if (isset($_POST['CSFRToken'])  && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+	function requestAccess(Request $request, Application $app) {		
+		if ($request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			
 			$repo = new SiteAccessRequestRepository();
 			$isCurrentRequestExistsForSiteAndUser = $repo->isCurrentRequestExistsForSiteAndUser($app['currentSite'], userGetCurrent());
-			$repo->create($app['currentSite'], userGetCurrent(), $_POST['answer']);
+			$repo->create($app['currentSite'], userGetCurrent(), $request->request->get('answer'));
 			
 			if (!$isCurrentRequestExistsForSiteAndUser) {
+				
+				$userNotificationRepo = new UserNotificationRepository();
+				$userNotificationType = $app['extensions']->getCoreExtension()->getUserNotificationType('UserRequestsAccessNotifyAdmin');
 				
 				$urb = new UserAccountRepositoryBuilder();
 				$urb->setCanAdministrateSite($app['currentSite']);
 				foreach($urb->fetchAll() as $admin) {
 					
+					$userNotification = $userNotificationType->getNewNotification($admin, $app['currentSite']);
+					$userNotification->setRequestingUser(userGetCurrent());
+					$userNotificationRepo->create($userNotification);
+					
 					$message = \Swift_Message::newInstance();
 					$message->setSubject("A request to access ". $app['currentSite']->getTitle());
-					$message->setFrom(array($CONFIG->emailFrom => $CONFIG->emailFromName));
+					$message->setFrom(array($app['config']->emailFrom => $app['config']->emailFromName));
 					$message->setTo($admin->getEmail());
 
 					$messageText = $app['twig']->render('email/requestAccess.txt.twig', array(
 						'user'=>  userGetCurrent(),
 						'admin'=>  $admin,
-						'answer'=>  $_POST['answer'],
+						'answer'=>  $request->request->get('answer'),
 					));
-					if ($CONFIG->isDebug) file_put_contents('/tmp/requestAccess.txt', $messageText);
+					if ($app['config']->isDebug) file_put_contents('/tmp/requestAccess.txt', $messageText);
 					$message->setBody($messageText);
 
 					$messageHTML = $app['twig']->render('email/requestAccess.html.twig', array(
 						'user'=>userGetCurrent(),
 						'admin'=>  $admin,
-						'answer'=>  $_POST['answer'],
+						'answer'=>  $request->request->get('answer'),
 					));
-					if ($CONFIG->isDebug) file_put_contents('/tmp/requestAccess.html', $messageHTML);
+					if ($app['config']->isDebug) file_put_contents('/tmp/requestAccess.html', $messageHTML);
 					$message->addPart($messageHTML,'text/html');
 
-					if (!$CONFIG->isDebug) $app['mailer']->send($message);
+					if (!$app['config']->isDebug) $app['mailer']->send($message);
+					$userNotificationRepo->markEmailed($userNotification);
 				}
 				
 			}
@@ -161,17 +162,13 @@ class IndexController {
 	}
 
 	
-	function places(Application $app) {
-		global $CONFIG;
-		
+	function places(Application $app) {		
 		return $app['twig']->render('site/index/places.html.twig', array(
 			));
 	}
 	
 	
-	function currentUser(Application $app) {
-		global $CONFIG;
-		
+	function currentUser(Application $app) {		
 		if (userGetCurrent()) {
 			return $app['twig']->render('site/index/currentUser.user.html.twig', array(
 				));

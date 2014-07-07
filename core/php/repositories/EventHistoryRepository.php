@@ -4,6 +4,7 @@ namespace repositories;
 
 use models\EventModel;
 use models\EventHistoryModel;
+use models\UserAccountModel;
 
 /**
  *
@@ -59,6 +60,7 @@ class EventHistoryRepository {
 				" timezone_changed = :timezone_changed   , ".
 				" venue_id_changed = :venue_id_changed   , ".
 				" url_changed = :url_changed  , ".
+				" ticket_url_changed = :ticket_url_changed  , ".
 				" is_virtual_changed = :is_virtual_changed   , ".
 				" is_physical_changed = :is_physical_changed   , ".
 				" area_id_changed = :area_id_changed    ".
@@ -76,10 +78,30 @@ class EventHistoryRepository {
 				'timezone_changed'=> $eventhistory->getTimezoneChanged() ? 1 : -1,
 				'venue_id_changed'=> $eventhistory->getVenueIdChanged() ? 1 : -1,
 				'url_changed'=> $eventhistory->getUrlChanged() ? 1 : -1,
+				'ticket_url_changed'=> $eventhistory->getTicketUrlChanged() ? 1 : -1,
 				'is_virtual_changed'=> $eventhistory->getIsVirtualChanged() ? 1 : -1,
 				'is_physical_changed'=> $eventhistory->getIsPhysicalChanged() ? 1 : -1,
 				'area_id_changed'=> $eventhistory->getAreaIdChanged() ? 1 : -1,
 			));
+	}
+	
+	
+	
+	
+	public function loadByEventAndlastEditByUser(EventModel $event, UserAccountModel $user) {
+		global $DB;
+		$stat = $DB->prepare("SELECT event_history.* FROM event_history ".
+				" WHERE event_history.event_id = :id AND event_history.user_account_id = :user ".
+				" ORDER BY event_history.created_at DESc");
+		$stat->execute(array( 
+				'id'=>$event->getId(), 
+				'user'=>$user->getId() 
+			));
+		if ($stat->rowCount() > 0) {
+			$event = new EventHistoryModel();
+			$event->setFromDataBaseRow($stat->fetch());
+			return $event;
+		}
 	}
 	
 	

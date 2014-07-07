@@ -24,6 +24,10 @@ $(document).ready(function() {
 			event.preventDefault();
 		}
 	});
+	if (config.currentUser) {
+		loadNotifications();
+		setInterval(loadNotifications,300000);
+	}
 });
 
 //////////////////////////////////////////////////////////////////////////////// General Popup
@@ -60,6 +64,44 @@ function showHelpPopup(html) {
 		div.show();
 	}
 	showPopup();
+}
+
+//////////////////////////////////////////////////////////////////////////////// Notifications
+
+function loadNotifications() {
+	$.ajax({
+		dataType: "json",
+		url: '/me/notification.json',
+		success: function(data) {
+			var html = '';
+			var rootNotificationURL = (config.hasSSL ? 'https://'+config.httpsDomainIndex : 'http://'+config.httpDomainIndex) + '/me/notification/';
+			var count = 0;
+			var countUnread = 0;
+			for(i in data.notifications) {
+				var notification = data.notifications[i];
+				if (!notification.read) {
+					++countUnread;
+					html += '<li class="unread">';
+				} else {
+					html += '<li class="read">';
+				}
+				
+				html += '<div class="title"><a href="'+rootNotificationURL+notification.id+'">'+escapeHTML(notification.text)+'</a></div>';
+				html += '<div class="timesince">'+escapeHTML(notification.timesince)+'</div>'
+				if (!config.isSingleSiteMode) {
+					html += '<div class="site">'+escapeHTML(notification.site.title)+'</div>'
+				}
+				html += '</li>';
+				++count;
+			}
+			if (count > 0) {
+				$('#NotificationSubMenu').empty().append(html);
+				$('#NotificationMenuLinkCount').show().html(countUnread > 0 ? '('+countUnread+')' : '');
+			} else {
+				$('#NotificationMenuLink').hide();
+			}
+		}
+	});
 }
 
 //////////////////////////////////////////////////////////////////////////////// General

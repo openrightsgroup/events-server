@@ -18,7 +18,7 @@ use repositories\builders\UserWatchesSitePromptEmailRepositoryBuilder;
 use sysadmin\forms\ActionForm;
 use sysadmin\ActionParser;
 use repositories\UserAccountVerifyEmailRepository;
-
+use repositories\builders\UserNotificationRepositoryBuilder;
 
 /**
  *
@@ -48,8 +48,6 @@ class UserController {
 	
 	
 	function show($id, Request $request, Application $app) {
-		global $FLASHMESSAGES;
-		
 		
 		$this->build($id, $request, $app);
 		
@@ -88,7 +86,7 @@ class UserController {
 					$repo = new UserAccountVerifyEmailRepository();
 					$verify = $repo->create($this->parameters['user']);
 					$verify->sendEmail($app, $this->parameters['user']);
-					$FLASHMESSAGES->addMessage('Sent');
+					$app['flashmessages']->addMessage('Sent');
 					return $app->redirect('/sysadmin/user/'.$this->parameters['user']->getId());	
 				} else if ($action->getCommand() == 'close') {
 					$uar->systemAdminShuts($this->parameters['user'], userGetCurrent(), $action->getParam(0));
@@ -196,6 +194,20 @@ class UserController {
 		return $app['twig']->render('sysadmin/user/watchesGroupNotifyEmail.html.twig', $this->parameters);
 	}
 	
+	function listNotifications($id, Request $request, Application $app) {
+		$this->build($id, $request, $app);
+	
+		$rb = new UserNotificationRepositoryBuilder($app['extensions']);
+		$rb->setLimit(40);
+		$rb->setUser($this->parameters['user']);
+		
+		$notifications = $rb->fetchAll();
+		
+		
+			return $app['twig']->render('/sysadmin/user/notifications.html.twig', array(
+				'notifications'=>$notifications,
+			));
+	}
 }
 
 

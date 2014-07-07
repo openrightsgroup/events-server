@@ -1,3 +1,126 @@
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
 html {
   background-color: #B7CFB7;
 }
@@ -20,6 +143,31 @@ body {
 #header ul.menu {
   padding: 0;
   margin: 0;
+}
+#header ul.menu li#NotificationMenu img.notificationicon {
+  width: 16px;
+  height: 16px;
+}
+#header ul.menu li#NotificationMenu ul.submenu#NotificationSubMenu li {
+  padding: 5px;
+  border-bottom: 1px solid #ccc;
+}
+#header ul.menu li#NotificationMenu ul.submenu#NotificationSubMenu li .title a {
+  display: block;
+  font-size: 10pt;
+  color: #999;
+  padding: 0;
+}
+#header ul.menu li#NotificationMenu ul.submenu#NotificationSubMenu li .timesince,
+#header ul.menu li#NotificationMenu ul.submenu#NotificationSubMenu li .site {
+  display: inline;
+  font-size: 8pt;
+  color: #999;
+  padding: 2px;
+}
+#header ul.menu li#NotificationMenu ul.submenu#NotificationSubMenu li.unread .title a {
+  font-size: 12pt;
+  color: #333;
 }
 #header ul.menu li {
   list-style-type: none;
@@ -199,6 +347,10 @@ form.styled .actionWrapperBig input[type="submit"]:hover {
   color: black;
   text-decoration: underline;
 }
+#Map.leftColumnFullWidth {
+  width: 99%;
+  height: 300px;
+}
 h2 {
   font-weight: bold;
   font-size: 1.5em;
@@ -323,6 +475,74 @@ ul.curatedlists li.curatedlist .title a:hover {
   color: black;
   text-decoration: underline;
 }
+ul.tags li.tag {
+  border-bottom: 2px solid #E9E9E9;
+}
+ul.tags li.tag .title {
+  font-size: 1.1em;
+  font-weight: bold;
+  padding: 2px 0;
+}
+ul.tags li.tag .title a {
+  color: #333;
+  text-decoration: none;
+}
+ul.tags li.tag .title a:hover {
+  color: black;
+  text-decoration: underline;
+}
+ul.tags li.tag span.tagTitleWrapper {
+  font-size: 13pt;
+  background: url('/theme/default/img/tagBackground.png') no-repeat left center #4F4F4F;
+  white-space: nowrap;
+  -webkit-border-bottom-right-radius: 2px;
+  -moz-border-radius-bottomright: 2px;
+  -ms-border-radius-bottomright: 2px;
+  -o-border-bottom-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  -webkit-border-top-right-radius: 2px;
+  -moz-border-radius-topright: 2px;
+  -ms-border-radius-topright: 2px;
+  -o-border-top-right-radius: 2px;
+  border-top-right-radius: 2px;
+  padding: 2px 5px 2px 20px;
+  color: white;
+}
+ul.tags li.tag span.tagTitleWrapper a {
+  color: white;
+  text-decoration: none;
+}
+div.inlineTags ul.inlineTags {
+  display: inline;
+  padding: 20px 0;
+  font-weight: 200;
+}
+div.inlineTags ul.inlineTags li.tag {
+  padding: 2px;
+  display: inline;
+  line-height: 1.8em;
+}
+div.inlineTags ul.inlineTags li.tag span.content {
+  font-size: 13pt;
+  background: url('/theme/default/img/tagBackground.png') no-repeat left center #4F4F4F;
+  white-space: nowrap;
+  -webkit-border-bottom-right-radius: 2px;
+  -moz-border-radius-bottomright: 2px;
+  -ms-border-radius-bottomright: 2px;
+  -o-border-bottom-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  -webkit-border-top-right-radius: 2px;
+  -moz-border-radius-topright: 2px;
+  -ms-border-radius-topright: 2px;
+  -o-border-top-right-radius: 2px;
+  border-top-right-radius: 2px;
+  padding: 2px 5px 2px 20px;
+  color: white;
+}
+div.inlineTags ul.inlineTags li.tag span.content a {
+  color: white;
+  text-decoration: none;
+}
 table.data {
   margin: 10px 20px;
 }
@@ -368,7 +588,9 @@ table.data a.button:hover {
 }
 ul.history li.event,
 ul.history li.group,
-ul.history li.venue {
+ul.history li.venue,
+ul.history li.tag,
+ul.history li.importurl {
   padding: 5px;
   margin: 5px 0 5px 0;
   -webkit-border-radius: 5px;
@@ -379,7 +601,9 @@ ul.history li.venue {
 }
 ul.history li.event div.dateTimeIcon,
 ul.history li.group div.dateTimeIcon,
-ul.history li.venue div.dateTimeIcon {
+ul.history li.venue div.dateTimeIcon,
+ul.history li.tag div.dateTimeIcon,
+ul.history li.importurl div.dateTimeIcon {
   float: left;
   width: 60px;
   height: 80px;
@@ -395,7 +619,9 @@ ul.history li.venue div.dateTimeIcon {
 }
 ul.history li.event div.dateTimeIcon div.dateIcon,
 ul.history li.group div.dateTimeIcon div.dateIcon,
-ul.history li.venue div.dateTimeIcon div.dateIcon {
+ul.history li.venue div.dateTimeIcon div.dateIcon,
+ul.history li.tag div.dateTimeIcon div.dateIcon,
+ul.history li.importurl div.dateTimeIcon div.dateIcon {
   width: 60px;
   height: 60px;
   text-align: center;
@@ -413,20 +639,26 @@ ul.history li.venue div.dateTimeIcon div.dateIcon {
 }
 ul.history li.event div.dateTimeIcon div.timeIcon,
 ul.history li.group div.dateTimeIcon div.timeIcon,
-ul.history li.venue div.dateTimeIcon div.timeIcon {
+ul.history li.venue div.dateTimeIcon div.timeIcon,
+ul.history li.tag div.dateTimeIcon div.timeIcon,
+ul.history li.importurl div.dateTimeIcon div.timeIcon {
   padding: 1px;
   text-align: center;
 }
 ul.history li.event div.dateTimeIcon span.deleted,
 ul.history li.group div.dateTimeIcon span.deleted,
-ul.history li.venue div.dateTimeIcon span.deleted {
+ul.history li.venue div.dateTimeIcon span.deleted,
+ul.history li.tag div.dateTimeIcon span.deleted,
+ul.history li.importurl div.dateTimeIcon span.deleted {
   padding-top: 5px;
   display: block;
   color: white;
 }
 ul.history li.event div.dateTimeIcon span.startDay,
 ul.history li.group div.dateTimeIcon span.startDay,
-ul.history li.venue div.dateTimeIcon span.startDay {
+ul.history li.venue div.dateTimeIcon span.startDay,
+ul.history li.tag div.dateTimeIcon span.startDay,
+ul.history li.importurl div.dateTimeIcon span.startDay {
   font-weight: 200;
   padding-top: 5px;
   display: block;
@@ -434,7 +666,9 @@ ul.history li.venue div.dateTimeIcon span.startDay {
 }
 ul.history li.event div.dateTimeIcon span.startDate,
 ul.history li.group div.dateTimeIcon span.startDate,
-ul.history li.venue div.dateTimeIcon span.startDate {
+ul.history li.venue div.dateTimeIcon span.startDate,
+ul.history li.tag div.dateTimeIcon span.startDate,
+ul.history li.importurl div.dateTimeIcon span.startDate {
   font-size: 16pt;
   font-weight: 400;
   display: block;
@@ -442,7 +676,9 @@ ul.history li.venue div.dateTimeIcon span.startDate {
 }
 ul.history li.event div.dateTimeIcon span.startMonthYear,
 ul.history li.group div.dateTimeIcon span.startMonthYear,
-ul.history li.venue div.dateTimeIcon span.startMonthYear {
+ul.history li.venue div.dateTimeIcon span.startMonthYear,
+ul.history li.tag div.dateTimeIcon span.startMonthYear,
+ul.history li.importurl div.dateTimeIcon span.startMonthYear {
   font-weight: 200;
   display: block;
   font-size: 0.75em;
@@ -450,38 +686,52 @@ ul.history li.venue div.dateTimeIcon span.startMonthYear {
 }
 ul.history li.event div.dateTimeIcon span.startTime,
 ul.history li.group div.dateTimeIcon span.startTime,
-ul.history li.venue div.dateTimeIcon span.startTime {
+ul.history li.venue div.dateTimeIcon span.startTime,
+ul.history li.tag div.dateTimeIcon span.startTime,
+ul.history li.importurl div.dateTimeIcon span.startTime {
   font-size: 11pt;
   color: black;
 }
 ul.history li.event div.dateTimeIcon a,
 ul.history li.group div.dateTimeIcon a,
-ul.history li.venue div.dateTimeIcon a {
+ul.history li.venue div.dateTimeIcon a,
+ul.history li.tag div.dateTimeIcon a,
+ul.history li.importurl div.dateTimeIcon a {
   text-decoration: none;
 }
 ul.history li.event div.dateTimeIcon a span.startDay,
 ul.history li.group div.dateTimeIcon a span.startDay,
-ul.history li.venue div.dateTimeIcon a span.startDay {
+ul.history li.venue div.dateTimeIcon a span.startDay,
+ul.history li.tag div.dateTimeIcon a span.startDay,
+ul.history li.importurl div.dateTimeIcon a span.startDay {
   color: white;
 }
 ul.history li.event div.dateTimeIcon a span.startDate,
 ul.history li.group div.dateTimeIcon a span.startDate,
-ul.history li.venue div.dateTimeIcon a span.startDate {
+ul.history li.venue div.dateTimeIcon a span.startDate,
+ul.history li.tag div.dateTimeIcon a span.startDate,
+ul.history li.importurl div.dateTimeIcon a span.startDate {
   color: white;
 }
 ul.history li.event div.dateTimeIcon a span.startMonthYear,
 ul.history li.group div.dateTimeIcon a span.startMonthYear,
-ul.history li.venue div.dateTimeIcon a span.startMonthYear {
+ul.history li.venue div.dateTimeIcon a span.startMonthYear,
+ul.history li.tag div.dateTimeIcon a span.startMonthYear,
+ul.history li.importurl div.dateTimeIcon a span.startMonthYear {
   color: white;
 }
 ul.history li.event div.dateTimeIcon a span.startTime,
 ul.history li.group div.dateTimeIcon a span.startTime,
-ul.history li.venue div.dateTimeIcon a span.startTime {
+ul.history li.venue div.dateTimeIcon a span.startTime,
+ul.history li.tag div.dateTimeIcon a span.startTime,
+ul.history li.importurl div.dateTimeIcon a span.startTime {
   color: black;
 }
 ul.history li.event div.icon,
 ul.history li.group div.icon,
-ul.history li.venue div.icon {
+ul.history li.venue div.icon,
+ul.history li.tag div.icon,
+ul.history li.importurl div.icon {
   float: left;
   width: 60px;
   height: 60px;
@@ -498,23 +748,31 @@ ul.history li.venue div.icon {
 }
 ul.history li.event div.icon img,
 ul.history li.group div.icon img,
-ul.history li.venue div.icon img {
+ul.history li.venue div.icon img,
+ul.history li.tag div.icon img,
+ul.history li.importurl div.icon img {
   padding: 10px;
 }
 ul.history li.event .title,
 ul.history li.group .title,
-ul.history li.venue .title {
+ul.history li.venue .title,
+ul.history li.tag .title,
+ul.history li.importurl .title {
   font-weight: bold;
 }
 ul.history li.event .title a,
 ul.history li.group .title a,
-ul.history li.venue .title a {
+ul.history li.venue .title a,
+ul.history li.tag .title a,
+ul.history li.importurl .title a {
   color: black;
   text-decoration: none;
 }
 ul.history li.event .created,
 ul.history li.group .created,
-ul.history li.venue .created {
+ul.history li.venue .created,
+ul.history li.tag .created,
+ul.history li.importurl .created {
   padding: 5px 0 0 0;
   clear: both;
   font-style: italic;
@@ -522,13 +780,17 @@ ul.history li.venue .created {
 }
 ul.history li.event .fieldChanged .field,
 ul.history li.group .fieldChanged .field,
-ul.history li.venue .fieldChanged .field {
+ul.history li.venue .fieldChanged .field,
+ul.history li.tag .fieldChanged .field,
+ul.history li.importurl .fieldChanged .field {
   display: inline;
   font-style: italic;
 }
 ul.history li.event .fieldChanged .value,
 ul.history li.group .fieldChanged .value,
-ul.history li.venue .fieldChanged .value {
+ul.history li.venue .fieldChanged .value,
+ul.history li.tag .fieldChanged .value,
+ul.history li.importurl .fieldChanged .value {
   display: inline;
 }
 ul.history li.event {
@@ -539,6 +801,12 @@ ul.history li.group {
 }
 ul.history li.venue {
   background: #8ac4bc;
+}
+ul.history li.tag {
+  background: #eefcbc;
+}
+ul.history li.importurl {
+  background: #bcdffc;
 }
 ul.history li.deleted {
   text-color: #999;
@@ -647,7 +915,8 @@ ul.newRecuringEvents li.newRecuringEvent .date {
 #curatedListsOnEventWrapper form {
   display: inline;
 }
-#userCanPushToChildAreaWrapper {
+#userCanPushToChildAreaWrapper,
+.isGroupRunningOutOfFutureEventsWarning {
   clear: both;
   margin: 10px;
   max-width: 600px;
@@ -1566,4 +1835,33 @@ p.errorPageText a {
 }
 p.errorPageText a:hover {
   color: black;
+}
+ul.usernotifications li.usernotificationunread,
+ul.usernotifications li.usernotificationread {
+  padding: 10px;
+  border-bottom: 2px solid #ccc;
+}
+ul.usernotifications li.usernotificationunread a.title,
+ul.usernotifications li.usernotificationread a.title {
+  display: block;
+  color: #333;
+}
+ul.usernotifications li.usernotificationunread a.title:hover,
+ul.usernotifications li.usernotificationread a.title:hover {
+  color: black;
+}
+ul.usernotifications li.usernotificationunread div.timesince,
+ul.usernotifications li.usernotificationunread div.site,
+ul.usernotifications li.usernotificationread div.timesince,
+ul.usernotifications li.usernotificationread div.site {
+  display: inline;
+  color: #999;
+  font-size: 0.8em;
+  padding: 5px 0;
+}
+ul.usernotifications li.usernotificationunread a.title {
+  font-size: 1.4em;
+}
+ul.usernotifications li.usernotificationunread a.title {
+  font-size: 1.1em;
 }

@@ -29,17 +29,6 @@ $app->match('/discover/',"index\controllers\IndexController::discover");
 $app->match('/credits',"index\controllers\IndexController::credits");
 $app->match('/credits/',"index\controllers\IndexController::credits");
 
-$app->match('/help',"index\controllers\HelpController::index");
-$app->match('/help/',"index\controllers\HelpController::index");
-$app->match('/help/watch',"index\controllers\HelpController::watch");
-$app->match('/help/personalcalendar',"index\controllers\HelpController::personalcalendar");
-$app->match('/help/contribute',"index\controllers\HelpController::contribute");
-$app->match('/help/recur',"index\controllers\HelpController::recur");
-$app->match('/help/urlimport',"index\controllers\HelpController::urlimport");
-
-$app->match('/apihelp/v1',"index\controllers\ApiHelp1Controller::index");
-$app->match('/apihelp/v1/',"index\controllers\ApiHelp1Controller::index");
-
 
 $app->match('/mytimezone', "index\controllers\IndexController::myTimeZone") ; 
 $app->match('/mytimezone/', "index\controllers\IndexController::myTimeZone") ; 
@@ -107,6 +96,13 @@ $app->match('/me/calendar/{year}/{month}/', "index\controllers\CurrentUserContro
 		->assert('year', '\d+')
 		->assert('month', '\d+')
 		->before($appUserRequired) ; 
+$app->match('/me/notification', "index\controllers\CurrentUserController::listNotifications") 
+		->before($appUserRequired); 
+$app->match('/me/notification.json', "index\controllers\CurrentUserController::listNotificationsJson") 
+		->before($appUserRequired); 
+$app->match('/me/notification/{id}', "index\controllers\CurrentUserController::showNotification") 
+		->assert('id', '\d+')
+		->before($appUserRequired); 
 
 $app->match("/site/{siteSlug}/event/{eventSlug}/myAttendance.json", "index\controllers\SiteController::eventMyAttendanceJson");
 

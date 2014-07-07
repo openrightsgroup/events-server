@@ -96,6 +96,9 @@ class GroupController {
 		$importurlRepoBuilder->setGroup($this->parameters['group']);
 		$this->parameters['importurls'] = $importurlRepoBuilder->fetchAll();
 		
+		$groupRepo = new GroupRepository();
+		$this->parameters['isGroupRunningOutOfFutureEvents'] = $groupRepo->isGroupRunningOutOfFutureEvents($this->parameters['group'], $app['currentSite']);
+		
 		return $app['twig']->render('site/group/show.html.twig', $this->parameters);
 	}
 	
@@ -133,9 +136,7 @@ class GroupController {
 	}
 	
 	
-	function media($slug, Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES;
-		
+	function media($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Group does not exist.");
 		}
@@ -160,7 +161,7 @@ class GroupController {
 						$mediaInGroupRepo = new MediaInGroupRepository();
 						$mediaInGroupRepo->add($media, $this->parameters['group'], userGetCurrent());
 						
-						$FLASHMESSAGES->addMessage('Picuture added!');
+						$app['flashmessages']->addMessage('Picture added!');
 						return $app->redirect("/group/".$this->parameters['group']->getSlug());
 						
 					}
@@ -181,40 +182,36 @@ class GroupController {
 		return $app['twig']->render('site/group/media.html.twig', $this->parameters);
 	}
 	
-	function mediaRemove($slug, $mediaslug, Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES, $WEBSESSION;
-		
+	function mediaRemove($slug, $mediaslug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Group does not exist.");
 		}
 		
-		if (isset($_POST) && isset($_POST['CSFRToken']) && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('CSFRToken')) {
 			$mediaRepository = new MediaRepository();
 			$media = $mediaRepository->loadBySlug($app['currentSite'], $mediaslug);
 			if ($media) {
 				$mediaInGroupRepo = new MediaInGroupRepository();
 				$mediaInGroupRepo->remove($media, $this->parameters['group'], userGetCurrent());
-				$FLASHMESSAGES->addMessage('Removed!');
+				$app['flashmessages']->addMessage('Removed!');
 			}
 		}
 		
 		return $app->redirect("/group/".$this->parameters['group']->getSlug().'/media');
 	}
 	
-	function mediaAddExisting($slug, Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES, $WEBSESSION;
-		
+	function mediaAddExisting($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Group does not exist.");
 		}
 			
-		if (isset($_POST) && isset($_POST['addMedia']) && isset($_POST['CSFRToken']) && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('CSFRToken')) {
 			$mediaRepository = new MediaRepository();
-			$media = $mediaRepository->loadBySlug($app['currentSite'], $_POST['addMedia']);
+			$media = $mediaRepository->loadBySlug($app['currentSite'], $request->request->get('addMedia'));
 			if ($media) {
 				$mediaInGroupRepo = new MediaInGroupRepository();
 				$mediaInGroupRepo->add($media, $this->parameters['group'], userGetCurrent());
-				$FLASHMESSAGES->addMessage('Added!');
+				$app['flashmessages']->addMessage('Added!');
 				return $app->redirect("/group/".$this->parameters['group']->getSlug().'/');
 			}
 		}
@@ -275,7 +272,6 @@ class GroupController {
 	}
 	
 	function newEventGo($slug, Request $request, Application $app) {
-		global $CONFIG;
 		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Group does not exist.");
@@ -322,11 +318,11 @@ class GroupController {
 				$eventRepository->create($event, $app['currentSite'], userGetCurrent(), $this->parameters['group']);
 				
 				
-				if ($parseResult && $CONFIG->logFileParseDateTimeRange && 
+				if ($parseResult && $app['config']->logFileParseDateTimeRange && 
 						($parseResult->getStart()->getTimestamp() != $event->getStartAt()->getTimestamp() 
 						|| $parseResult->getEnd()->getTimestamp() != $event->getEndAt()->getTimestamp())) {
 					
-					$handle = fopen($CONFIG->logFileParseDateTimeRange, "a");
+					$handle = fopen($app['config']->logFileParseDateTimeRange, "a");
 					$now = \TimeSource::getDateTime();
 					fwrite($handle, 'Site, '.$app['currentSite']->getId()." ,". $app['currentSite']->getSlug()." ,".
 							'Event,'.$event->getSlug()." ,".
@@ -397,21 +393,19 @@ class GroupController {
 	}
 	
 	
-	function watch($slug, Request $request, Application $app) {
-		global $CONFIG, $WEBSESSION, $FLASHMESSAGES;
-		
+	function watch($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Group does not exist.");
 		}
 		
-		if (isset($_POST['action'])  && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('action')  && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			$repo = new UserWatchesGroupRepository();
-			if ($_POST['action'] == 'watch') {
+			if ($request->request->get('action') == 'watch') {
 				$repo->startUserWatchingGroup(userGetCurrent(), $this->parameters['group']);
-				$FLASHMESSAGES->addMessage("Watching!");
-			} else if ($_POST['action'] == 'unwatch') {
+				$app['flashmessages']->addMessage("Watching!");
+			} else if ($request->request->get('action') == 'unwatch') {
 				$repo->stopUserWatchingGroup(userGetCurrent(), $this->parameters['group']);
-				$FLASHMESSAGES->addMessage("No longer watching");
+				$app['flashmessages']->addMessage("No longer watching");
 			}
 			// redirect here because if we didn't the  $this->parameters vars would be wrong (the old state)
 			// this is an easy way to get round that. Also it's nice UI to go back to the group page.
@@ -421,9 +415,7 @@ class GroupController {
 		return $app['twig']->render('site/group/watch.html.twig', $this->parameters);
 	}
 
-	function stopWatchingFromEmail($slug, $userid, $code,Request $request, Application $app) {
-		global $FLASHMESSAGES, $WEBSESSION;
-		
+	function stopWatchingFromEmail($slug, $userid, $code,Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Group does not exist.");
 		}
@@ -449,11 +441,11 @@ class GroupController {
 			die("You don't watch this group"); // TODO
 		}
 		
-		if (isset($_POST['action']) && $_POST['action'] == 'unwatch' && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('action') == 'unwatch' && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			$userWatchesGroupRepo->stopUserWatchingGroup($user, $this->parameters['group']);
 			// redirect here because if we didn't the twig global and $app vars would be wrong (the old state)
 			// this is an easy way to get round that.
-			$FLASHMESSAGES->addMessage("You have stopped watching this group.");
+			$app['flashmessages']->addMessage("You have stopped watching this group.");
 			return $app->redirect('/group/'.$this->parameters['group']->getSlug());
 		}
 		
@@ -463,9 +455,7 @@ class GroupController {
 		
 	}
 		
-	function newImportURL($slug, Request $request, Application $app) {
-		global $CONFIG, $WEBSESSION, $FLASHMESSAGES;
-		
+	function newImportURL($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Group does not exist.");
 		}
@@ -476,7 +466,7 @@ class GroupController {
 		$importurl->setSiteId($app['currentSite']->getId());
 		$importurl->setGroupId($this->parameters['group']->getId());
 		
-		$form = $app['form.factory']->create(new ImportURLNewForm($app['currentSite']), $importurl);
+		$form = $app['form.factory']->create(new ImportURLNewForm($app['currentSite'], $app['currentTimeZone']), $importurl);
 		
 		if ('POST' == $request->getMethod()) {
 			$form->bind($request);
@@ -488,15 +478,16 @@ class GroupController {
 				$clash = $importURLRepository->loadClashForImportUrl($importurl);
 				if ($clash) {
 					$importurl->setIsEnabled(false);
-					$FLASHMESSAGES->addMessage("There was a problem enabling this importer. Please try to enable it for details.");
+					$app['flashmessages']->addMessage("There was a problem enabling this importer. Please try to enable it for details.");
 				} else {
 					$importurl->setIsEnabled(true);
 				}
 				
 				$area = null;
 				$areaRepository = new AreaRepository();
-				if (isset($_POST['areas']) && is_array($_POST['areas'])) {
-					foreach ($_POST['areas'] as $areaCode) {
+				$areasPost = $request->request->get('areas');
+				if (is_array($areasPost)) {
+					foreach ($areasPost as $areaCode) {
 						if (substr($areaCode, 0, 9) == 'EXISTING:') {
 							$area = $areaRepository->loadBySlug($app['currentSite'], substr($areaCode,9));
 						}

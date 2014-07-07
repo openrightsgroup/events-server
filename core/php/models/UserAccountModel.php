@@ -31,9 +31,6 @@ class UserAccountModel {
 		protected $email_verify_code;
 		protected $is_editor;
 		protected $is_system_admin;
-		protected $is_email_watch_notify = false;
-		protected $is_email_watch_prompt = false;
-		protected $is_email_watch_import_expired = false;
 		protected $email_upcoming_events_days_notice = 1;
 		/**
 		* options 
@@ -44,7 +41,6 @@ class UserAccountModel {
 		* @var string
 		*/			
 		protected $email_upcoming_events = 'n';
-		protected $is_email_newsletter = false;
 		protected $is_clock_12hour;
 		protected $is_closed_by_sys_admin = false;
 		protected $closed_by_sys_admin_reason;
@@ -69,12 +65,8 @@ class UserAccountModel {
 			$this->is_site_owner = isset($data['is_site_owner']) ? $data['is_site_owner'] : false;
 			$this->is_site_administrator = isset($data['is_site_administrator']) ? $data['is_site_administrator'] : false;
 			$this->is_site_editor = isset($data['is_site_editor']) ? $data['is_site_editor'] : false;
-			$this->is_email_watch_notify = (boolean)$data['is_email_watch_notify'] ;
-			$this->is_email_watch_prompt = (boolean)$data['is_email_watch_prompt'] ;
-			$this->is_email_watch_import_expired = (boolean)$data['is_email_watch_import_expired'] ;
 			$this->email_upcoming_events = $data['email_upcoming_events'];
 			$this->email_upcoming_events_days_notice = $data['email_upcoming_events_days_notice'];
-			$this->is_email_newsletter = (boolean)$data['is_email_newsletter'] ;
 			$this->is_clock_12hour = $data['is_clock_12hour'];
 			$this->is_closed_by_sys_admin = $data['is_closed_by_sys_admin'];
 			$this->closed_by_sys_admin_reason = $data['closed_by_sys_admin_reason'];
@@ -171,39 +163,12 @@ class UserAccountModel {
 			return $this->is_site_editor;
 		}
 
-		public function getIsEmailWatchNotify() {
-			return $this->is_email_watch_notify;
-		}
-
-		public function setIsEmailWatchNotify($is_email_watch_notify) {
-			$this->is_email_watch_notify = $is_email_watch_notify;
-			return $this;
-		}
-
-		public function getIsEmailWatchPrompt() {
-			return $this->is_email_watch_prompt;
-		}
-
-		public function setIsEmailWatchPrompt($is_email_watch_prompt) {
-			$this->is_email_watch_prompt = $is_email_watch_prompt;
-			return $this;
-		}
-
 		public function getEmailUpcomingEvents() {
 			return $this->email_upcoming_events;
 		}
 
 		public function setEmailUpcomingEvents($email_upcoming_events) {
 			$this->email_upcoming_events = $email_upcoming_events;
-			return $this;
-		}
-
-		public function getIsEmailWatchImportExpired() {
-			return $this->is_email_watch_import_expired;
-		}
-
-		public function setIsEmailWatchImportExpired($is_email_watch_import_expired) {
-			$this->is_email_watch_import_expired = $is_email_watch_import_expired;
 			return $this;
 		}
 
@@ -223,10 +188,6 @@ class UserAccountModel {
 		 * @return type array(array(), array(), array(), boolean) - upcoming events, other events, user at event data, flag if any to send
 		 */
 		public function getDataForUpcomingEventsEmail() {
-
-			if ($this->email_upcoming_events == 'n') {
-				return array(array(), array(), array(), false);
-			}
 			
 			$flag = false;
 
@@ -267,7 +228,7 @@ class UserAccountModel {
 				}
 				$allEvents[] = $event;				
 			}
-			
+
 			return array($upcomingEvents, $allEvents, $userAtEvent, $flag);
 			
 		}
@@ -306,14 +267,6 @@ class UserAccountModel {
 			return $this->is_email_verified && $this->is_editor && !$this->is_closed_by_sys_admin;
 		}
 		
-		public function getIsEmailNewsletter() {
-			return $this->is_email_newsletter;
-		}
-
-		public function setIsEmailNewsletter($is_email_newsletter) {
-			$this->is_email_newsletter = $is_email_newsletter;
-			return $this;
-		}
 
 		public function getCreatedAt() {
 			return $this->created_at;

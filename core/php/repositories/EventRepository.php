@@ -7,7 +7,9 @@ use models\EventModel;
 use models\EventHistoryModel;
 use models\SiteModel;
 use models\GroupModel;
+use models\VenueModel;
 use models\UserAccountModel;
+use \models\ImportedEventModel;
 use repositories\UserWatchesGroupRepository;
 
 /**
@@ -21,7 +23,8 @@ use repositories\UserWatchesGroupRepository;
 class EventRepository {
 	
 	
-	public function create(EventModel $event, SiteModel $site, UserAccountModel $creator = null, GroupModel $group = null, $additionalGroups = null) {
+	public function create(EventModel $event, SiteModel $site, UserAccountModel $creator = null, 
+			GroupModel $group = null, $additionalGroups = null, ImportedEventModel $importedEvent = null, $tags=array()) {
 		global $DB;
 		try {
 			$DB->beginTransaction();
@@ -32,11 +35,11 @@ class EventRepository {
 			$event->setSlug($data['c'] + 1);
 
 			$stat = $DB->prepare("INSERT INTO event_information (site_id, slug, summary,description,start_at,end_at,".
-				" created_at, event_recur_set_id,venue_id,country_id,timezone,import_url_id,import_id, ".
-				" url, is_physical, is_virtual, area_id) ".
+				" created_at, event_recur_set_id,venue_id,country_id,timezone, ".
+				" url, ticket_url, is_physical, is_virtual, area_id, approved_at) ".
 					" VALUES (:site_id, :slug, :summary, :description, :start_at, :end_at, ".
-						" :created_at, :event_recur_set_id,:venue_id,:country_id,:timezone,:import_url_id,:import_id, ".
-						" :url, :is_physical, :is_virtual, :area_id) RETURNING id");
+						" :created_at, :event_recur_set_id,:venue_id,:country_id,:timezone, ".
+						" :url, :ticket_url, :is_physical, :is_virtual, :area_id, :approved_at) RETURNING id");
 			$stat->execute(array(
 					'site_id'=>$site->getId(), 
 					'slug'=>$event->getSlug(),
@@ -45,14 +48,14 @@ class EventRepository {
 					'start_at'=>$event->getStartAtInUTC()->format("Y-m-d H:i:s"),
 					'end_at'=>$event->getEndAtInUTC()->format("Y-m-d H:i:s"),
 					'created_at'=>\TimeSource::getFormattedForDataBase(),
+					'approved_at'=>\TimeSource::getFormattedForDataBase(),
 					'event_recur_set_id'=>$event->getEventRecurSetId(),
 					'country_id'=>$event->getCountryId(),
 					'venue_id'=>$event->getVenueId(),
 					'area_id'=>($event->getVenueId() ? null : $event->getAreaId()),
 					'timezone'=>$event->getTimezone(),
-					'import_url_id'=>$event->getImportUrlId(),
-					'import_id'=>$event->getImportId(),
 					'url'=>substr($event->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+					'ticket_url'=>substr($event->getTicketUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'is_physical'=>$event->getIsPhysical()?1:0,
 					'is_virtual'=>$event->getIsVirtual()?1:0,
 				));
@@ -61,10 +64,10 @@ class EventRepository {
 			
 			$stat = $DB->prepare("INSERT INTO event_history (event_id, summary, description,start_at, end_at, ".
 				" user_account_id  , created_at,venue_id,country_id,timezone,".
-				" url, is_physical, is_virtual, area_id, is_new) VALUES ".
+				" url, ticket_url, is_physical, is_virtual, area_id, is_new, approved_at) VALUES ".
 					" (:event_id, :summary, :description, :start_at, :end_at, ".
 						" :user_account_id  , :created_at,:venue_id,:country_id,:timezone,".
-						" :url, :is_physical, :is_virtual, :area_id, '1')");
+						" :url, :ticket_url, :is_physical, :is_virtual, :area_id, '1', :approved_at)");
 			$stat->execute(array(
 					'event_id'=>$event->getId(),
 					'summary'=>substr($event->getSummary(),0,VARCHAR_COLUMN_LENGTH_USED),
@@ -73,24 +76,27 @@ class EventRepository {
 					'end_at'=>$event->getEndAtInUTC()->format("Y-m-d H:i:s"),
 					'user_account_id'=>($creator ? $creator->getId(): null),				
 					'created_at'=>\TimeSource::getFormattedForDataBase(),
+					'approved_at'=>\TimeSource::getFormattedForDataBase(),
 					'country_id'=>$event->getCountryId(),
 					'venue_id'=>$event->getVenueId(),
 					'area_id'=>($event->getVenueId() ? null : $event->getAreaId()),
 					'timezone'=>$event->getTimezone(),
 					'url'=>substr($event->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+					'ticket_url'=>substr($event->getTicketUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'is_physical'=>$event->getIsPhysical()?1:0,
 					'is_virtual'=>$event->getIsVirtual()?1:0,
 				));
 			
 			if ($group || $additionalGroups) {
-				$stat = $DB->prepare("INSERT INTO event_in_group (group_id,event_id,added_by_user_account_id,added_at,is_main_group) ".
-						"VALUES (:group_id,:event_id,:added_by_user_account_id,:added_at,:is_main_group)");
+				$stat = $DB->prepare("INSERT INTO event_in_group (group_id,event_id,added_by_user_account_id,added_at,is_main_group,addition_approved_at) ".
+						"VALUES (:group_id,:event_id,:added_by_user_account_id,:added_at,:is_main_group,:addition_approved_at)");
 				if ($group) {
 					$stat->execute(array(
 							'group_id'=>$group->getId(),
 							'event_id'=>$event->getId(),
 							'added_by_user_account_id'=>($creator ? $creator->getId(): null),
 							'added_at'=>\TimeSource::getFormattedForDataBase(),
+							'addition_approved_at'=>\TimeSource::getFormattedForDataBase(),
 							'is_main_group'=>1,
 						));
 				}
@@ -102,6 +108,7 @@ class EventRepository {
 									'event_id'=>$event->getId(),
 									'added_by_user_account_id'=>($creator ? $creator->getId(): null),
 									'added_at'=>\TimeSource::getFormattedForDataBase(),
+									'addition_approved_at'=>\TimeSource::getFormattedForDataBase(),
 									'is_main_group'=>0,
 								));
 						}
@@ -118,7 +125,30 @@ class EventRepository {
 					// TODO watch site?
 				}
 			}
-
+			
+			if ($importedEvent) {
+				$stat = $DB->prepare("INSERT INTO imported_event_is_event (imported_event_id, event_id, created_at) ".
+						"VALUES (:imported_event_id, :event_id, :created_at)");
+				$stat->execute(array(
+					'imported_event_id'=>$importedEvent->getId(),
+					'event_id'=>$event->getId(),
+					'created_at'=>\TimeSource::getFormattedForDataBase(),
+				));
+			}
+			
+			if ($tags) {	
+				$stat = $DB->prepare("INSERT INTO event_has_tag (tag_id,event_id,added_by_user_account_id,added_at,addition_approved_at) ".
+					"VALUES (:tag_id,:event_id,:added_by_user_account_id,:added_at,:addition_approved_at)");
+				foreach($tags as $tag) {
+						$stat->execute(array(
+							'tag_id'=>$tag->getId(),
+							'event_id'=>$event->getId(),
+							'added_by_user_account_id'=>($creator?$creator->getId():null),
+							'added_at'=>  \TimeSource::getFormattedForDataBase(),
+							'addition_approved_at'=>  \TimeSource::getFormattedForDataBase(),
+						));
+				}
+			}
 			
 			$DB->commit();
 		} catch (Exception $e) {
@@ -137,6 +167,17 @@ class EventRepository {
 		if ($stat->rowCount() > 0) {
 			$event = new EventModel();
 			$event->setFromDataBaseRow($stat->fetch());
+			// Now, we currently have 2 ways of linking imported events to events
+			// old way - flags on event
+			// new way - seperate models
+			// The below code checks the new way of linking and adds it if it finds anything
+			$repo = new \repositories\ImportedEventRepository();
+			$importedEvent = $repo->loadByEvent($event);
+			if ($importedEvent) {
+				$event->setImportId($importedEvent->getImportId());
+				$event->setImportUrlId($importedEvent->getImportUrlId());
+			}
+			// ... and return
 			return $event;
 		}
 	}
@@ -161,7 +202,7 @@ class EventRepository {
 			$stat = $DB->prepare("UPDATE event_information  SET summary=:summary, description=:description, ".
 					"start_at=:start_at, end_at=:end_at, is_deleted='0', area_id=:area_id, ".
 					" venue_id=:venue_id, country_id=:country_id, timezone=:timezone, ".
-					"url=:url, is_physical=:is_physical, is_virtual=:is_virtual ".
+					"url=:url, ticket_url=:ticket_url, is_physical=:is_physical, is_virtual=:is_virtual ".
 					"WHERE id=:id");
 			$stat->execute(array(
 					'id'=>$event->getId(),
@@ -174,16 +215,17 @@ class EventRepository {
 					'country_id'=>$event->getCountryId(),
 					'timezone'=>$event->getTimezone(),
 					'url'=>substr($event->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+					'ticket_url'=>substr($event->getTicketUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'is_physical'=>$event->getIsPhysical()?1:0,
 					'is_virtual'=>$event->getIsVirtual()?1:0,
 				));
 			
 			$stat = $DB->prepare("INSERT INTO event_history (event_id, summary, description,start_at, end_at, user_account_id  , ".
 					"created_at, reverted_from_created_at,venue_id,country_id,timezone,".
-					"url, is_physical, is_virtual, area_id) VALUES ".
+					"url, ticket_url, is_physical, is_virtual, area_id, approved_at) VALUES ".
 					"(:event_id, :summary, :description, :start_at, :end_at, :user_account_id  , ".
 					":created_at, :reverted_from_created_at,:venue_id,:country_id,:timezone,"."
-						:url, :is_physical, :is_virtual, :area_id)");
+						:url, :ticket_url, :is_physical, :is_virtual, :area_id, :approved_at)");
 			$stat->execute(array(
 					'event_id'=>$event->getId(),
 					'summary'=>substr($event->getSummary(),0,VARCHAR_COLUMN_LENGTH_USED),
@@ -196,8 +238,10 @@ class EventRepository {
 					'timezone'=>$event->getTimezone(),
 					'user_account_id'=>($creator ? $creator->getId(): null),				
 					'created_at'=>\TimeSource::getFormattedForDataBase(),
+					'approved_at'=>\TimeSource::getFormattedForDataBase(),
 					'reverted_from_created_at'=> ($fromHistory ? date("Y-m-d H:i:s",$fromHistory->getCreatedAtTimeStamp()):null),
 					'url'=>substr($event->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+					'ticket_url'=>substr($event->getTicketUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'is_physical'=>$event->getIsPhysical()?1:0,
 					'is_virtual'=>$event->getIsVirtual()?1:0,
 				));
@@ -231,10 +275,10 @@ class EventRepository {
 			
 			$stat = $DB->prepare("INSERT INTO event_history (event_id, summary, description,start_at, end_at, user_account_id  , ".
 					"created_at,venue_id,country_id,timezone,".
-					"url, is_physical, is_virtual, is_deleted) VALUES ".
+					"url, ticket_url, is_physical, is_virtual, is_deleted, approved_at) VALUES ".
 					"(:event_id, :summary, :description, :start_at, :end_at, :user_account_id  , ".
 					":created_at,:venue_id,:country_id,:timezone,"."
-						:url, :is_physical, :is_virtual, '1')");
+						:url, :ticket_url,  :is_physical, :is_virtual, '1', :approved_at)");
 			$stat->execute(array(
 					'event_id'=>$event->getId(),
 					'summary'=>substr($event->getSummary(),0,VARCHAR_COLUMN_LENGTH_USED),
@@ -246,7 +290,9 @@ class EventRepository {
 					'timezone'=>$event->getTimezone(),
 					'user_account_id'=>($creator ? $creator->getId(): null),				
 					'created_at'=>\TimeSource::getFormattedForDataBase(),
+					'approved_at'=>\TimeSource::getFormattedForDataBase(),
 					'url'=>substr($event->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+					'ticket_url'=>substr($event->getTicketUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'is_physical'=>$event->getIsPhysical()?1:0,
 					'is_virtual'=>$event->getIsVirtual()?1:0,
 				));
@@ -308,6 +354,142 @@ class EventRepository {
 		}
 	}
 	
+	
+	/**
+	 * 
+	 * This is a bit broken - in theory this could return multiple events (in the case of a imported event with recurrence) 
+	 * But for now that can't happen so just return one event.
+	 * 
+	 * @global \repositories\type $DB
+	 * @param \models\ImportedEventModel $importedEvent
+	 * @return \models\EventModel
+	 */
+	public function loadByImportedEvent(\models\ImportedEventModel $importedEvent) {
+			global $DB;
+		$stat = $DB->prepare("SELECT event_information.*, group_information.title AS group_title, group_information.id AS group_id  FROM event_information ".
+				" JOIN imported_event_is_event ON imported_event_is_event.event_id = event_information.id ".
+				" LEFT JOIN event_in_group ON event_in_group.event_id = event_information.id AND event_in_group.removed_at IS NULL AND event_in_group.is_main_group = '1' ".
+				" LEFT JOIN group_information ON group_information.id = event_in_group.group_id ".
+				" WHERE imported_event_is_event.imported_event_id = :id");
+		$stat->execute(array( 'id'=>$importedEvent->getId() ));
+		if ($stat->rowCount() > 0) {
+			$event = new EventModel();
+			$event->setFromDataBaseRow($stat->fetch());
+			return $event;
+		}
+	}
+	
+	
+	
+	public function moveAllFutureEventsAtVenueToNoSetVenue(VenueModel $venue, UserAccountModel $user) {
+			global $DB;
+			
+			$statFetch = $DB->prepare("SELECT event_information.* FROM event_information WHERE venue_id = :venue_id AND start_at > :start_at AND is_deleted='0'");
+			$statUpdateEvent = $DB->prepare("UPDATE event_information  SET venue_id=null, area_id=:area_id WHERE id=:id");	
+			$statAddHistory = $DB->prepare("INSERT INTO event_history (event_id, summary, description,start_at, end_at, user_account_id  , ".
+					"created_at, approved_at, venue_id,area_id,country_id,timezone,".
+					"url, ticket_url, is_physical, is_virtual, is_deleted) VALUES ".
+					"(:event_id, :summary, :description, :start_at, :end_at, :user_account_id  , ".
+					":created_at, :approved_at, :venue_id,:area_id,:country_id,:timezone,"."
+						:url, :ticket_url, :is_physical, :is_virtual, '0')");
+			$statFetch->execute(array('venue_id'=>$venue->getId(), 'start_at'=>\TimeSource::getFormattedForDataBase()));
+			while($data = $statFetch->fetch()) {
+				$event = new EventModel();
+				$event->setFromDataBaseRow($data);
+				$event->setVenueId(null);
+				$event->setAreaId($venue->getAreaId());
+				
+				try {
+					$DB->beginTransaction();
+
+					$statUpdateEvent->execute(array(
+											'id'=>$event->getId(),
+											'area_id'=>$event->getAreaId(),
+										));
+										
+					$statAddHistory->execute(array(
+											'event_id'=>$event->getId(),
+											'summary'=>substr($event->getSummary(),0,VARCHAR_COLUMN_LENGTH_USED),
+											'description'=>$event->getDescription(),
+											'start_at'=>$event->getStartAt()->format("Y-m-d H:i:s"),
+											'end_at'=>$event->getEndAt()->format("Y-m-d H:i:s"),
+											'venue_id'=>null,
+											'area_id'=>$event->getAreaId(),
+											'country_id'=>$event->getCountryId(),
+											'timezone'=>$event->getTimezone(),
+											'user_account_id'=>($user ? $user->getId(): null),				
+											'created_at'=>\TimeSource::getFormattedForDataBase(),		
+											'approved_at'=>\TimeSource::getFormattedForDataBase(),
+											'url'=>substr($event->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+											'ticket_url'=>substr($event->getTicketUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+											'is_physical'=>$event->getIsPhysical()?1:0,
+											'is_virtual'=>$event->getIsVirtual()?1:0,
+										));
+			
+					$DB->commit();
+				} catch (Exception $e) {
+					$DB->rollBack();
+				}
+					
+			}
+		
+	}
+	
+	public function loadEventJustBeforeEdit(EventModel $event, EventHistoryModel $eventHistory) {
+		global $DB;
+		$eventOut = clone $event;
+		
+		/**
+		 * At moment the last edit has all state, changed or not.
+		 * 
+		 * In future we may only store state in event_history for changed fields to save space.
+		 * 
+		 * When we do that, we'll have to iterate back over multiple event_histories until we have all fields.
+		 */
+		$stat = $DB->prepare("SELECT event_history.* FROM event_history ".
+				"WHERE event_history.event_id = :id AND event_history.created_at < :cat ".
+				"ORDER BY event_history.created_at DESC LIMIT 1");
+		$stat->execute(array( 
+				'id'=>$event->getId(), 
+				'cat'=>date("Y-m-d H:i:s",$eventHistory->getCreatedAtTimeStamp()) 
+			));
+		if ($stat->rowCount() > 0) {
+			$eventHistoryToApply = new EventHistoryModel();
+			$eventHistoryToApply->setFromDataBaseRow($stat->fetch());
+			$eventOut->setFromHistory($eventHistoryToApply);
+		}
+		
+		return $eventOut;
+	}
+	
+	
+	
+	public function purge(EventModel $event) {
+		global $DB;
+		try {
+			$DB->beginTransaction();
+			
+			$stat = $DB->prepare("DELETE FROM event_in_group WHERE event_id=:id");
+			$stat->execute(array('id'=>$event->getId()));
+			
+			$stat = $DB->prepare("DELETE FROM event_in_curated_list WHERE event_id=:id");
+			$stat->execute(array('id'=>$event->getId()));
+			
+			$stat = $DB->prepare("DELETE FROM event_has_tag WHERE event_id=:id");
+			$stat->execute(array('id'=>$event->getId()));
+
+			$stat = $DB->prepare("DELETE FROM event_history WHERE event_id=:id");
+			$stat->execute(array('id'=>$event->getId()));
+
+			$stat = $DB->prepare("DELETE FROM event_information WHERE id=:id");
+			$stat->execute(array('id'=>$event->getId()));
+		
+			$DB->commit();
+		} catch (Exception $e) {
+			$DB->rollBack();
+			throw $e;
+		}
+	}
 	
 }
 

@@ -40,9 +40,7 @@ class SiteController {
 	}
 	
 	
-	function eventMyAttendanceJson($siteSlug, $eventSlug, Request $request,Application $app) {
-		global $WEBSESSION;
-		
+	function eventMyAttendanceJson($siteSlug, $eventSlug, Request $request,Application $app) {		
 		if (!$this->build($siteSlug, $request, $app)) {
 			$app->abort(404, "Site does not exist.");
 		}
@@ -59,21 +57,21 @@ class SiteController {
 
 		$data = array();
 		
-		if (isset($_POST['CSFRToken']) && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken() && !$this->parameters['event']->isInPast()) {
+		if ($request->request->get('CSFRToken') == $app['websession']->getCSFRToken() && !$this->parameters['event']->isInPast()) {
 			
-			if (isset($_POST['privacy']) && $_POST['privacy'] == 'public') {
+			if ($request->request->get('privacy') == 'public') {
 				$userAtEvent->setIsPlanPublic(true);
-			} else if (isset($_POST['privacy']) && $_POST['privacy'] == 'private') {
+			} else if ($request->request->get('privacy') == 'private') {
 				$userAtEvent->setIsPlanPublic(false);
 			}
 			
-			if (isset($_POST['attending']) && $_POST['attending'] == 'no') {
+			if ($request->request->get('attending') == 'no') {
 				$userAtEvent->setIsPlanAttending(false);
 				$userAtEvent->setIsPlanMaybeAttending(false);
-			} else if (isset($_POST['attending']) && $_POST['attending'] == 'maybe') {
+			} else if ($request->request->get('attending') == 'maybe') {
 				$userAtEvent->setIsPlanAttending(false);
 				$userAtEvent->setIsPlanMaybeAttending(true);
-			} else if (isset($_POST['attending']) && $_POST['attending'] == 'yes') {
+			} else if ($request->request->get('attending') == 'yes') {
 				$userAtEvent->setIsPlanAttending(true);
 				$userAtEvent->setIsPlanMaybeAttending(false);
 			}
@@ -84,7 +82,7 @@ class SiteController {
 		$data['attending'] = ($userAtEvent->getIsPlanAttending() ? 'yes' : ($userAtEvent->getIsPlanMaybeAttending()?'maybe':'no'));
 		$data['privacy'] = ($userAtEvent->getIsPlanPublic() ? 'public' : 'private');
 		$data['inPast'] = $this->parameters['event']->isInPast() ? 1 : 0;
-		$data['CSFRToken'] = $WEBSESSION->getCSFRToken();
+		$data['CSFRToken'] = $app['websession']->getCSFRToken();
 		
 		$response = new Response(json_encode($data));
 		$response->headers->set('Content-Type', 'application/json');

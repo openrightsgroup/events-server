@@ -106,6 +106,27 @@ $app->match('/sysadmin/site/{siteid}/curatedlist/{slug}/', "sysadmin\controllers
 		->assert('siteid', '\d+')
 		->assert('slug', '\d+'); 
 
+
+$app->match('/sysadmin/site/{siteid}/tag', "sysadmin\controllers\TagListController::index")
+		->assert('siteid', '\d+'); 
+$app->match('/sysadmin/site/{siteid}/tag/', "sysadmin\controllers\TagListController::index")
+		->assert('siteid', '\d+'); 
+$app->match('/sysadmin/site/{siteid}/tag/{slug}', "sysadmin\controllers\TagController::index")
+		->assert('siteid', '\d+')
+		->assert('slug', '\d+'); 
+$app->match('/sysadmin/site/{siteid}/tag/{slug}/', "sysadmin\controllers\TagController::index")
+		->assert('siteid', '\d+')
+		->assert('slug', '\d+'); 
+
+$app->match('/sysadmin/site/{siteid}/country', "sysadmin\controllers\SiteController::listCountries")
+		->assert('siteid', '\d+'); 
+$app->match('/sysadmin/site/{siteid}/country/', "sysadmin\controllers\SiteController::listCountries")
+		->assert('siteid', '\d+'); 
+$app->match('/sysadmin/site/{siteid}/country/{countrycode}', "sysadmin\controllers\SiteController::showCountry")
+		->assert('siteid', '\d+'); 
+$app->match('/sysadmin/site/{siteid}/country/{countrycode}/', "sysadmin\controllers\SiteController::showCountry")
+		->assert('siteid', '\d+'); 
+
 $app->match('/sysadmin/user', "sysadmin\controllers\UserListController::index"); 
 $app->match('/sysadmin/user/', "sysadmin\controllers\UserListController::index"); 
 $app->match('/sysadmin/user/{id}', "sysadmin\controllers\UserController::show")
@@ -125,6 +146,8 @@ $app->match('/sysadmin/user/{id}/watchesGroupPromptEmail', "sysadmin\controllers
 $app->match('/sysadmin/user/{id}/watchesSiteNotifyEmail', "sysadmin\controllers\UserController::watchesSiteNotifyEmail")
 		->assert('id', '\d+'); 
 $app->match('/sysadmin/user/{id}/watchesGroupNotifyEmail', "sysadmin\controllers\UserController::watchesGroupNotifyEmail")
+		->assert('id', '\d+'); 
+$app->match('/sysadmin/user/{id}/notification', "sysadmin\controllers\UserController::listNotifications")
 		->assert('id', '\d+'); 
 
 $app->match('/sysadmin/history', "sysadmin\controllers\HistoryController::index"); 
@@ -148,4 +171,19 @@ $app->match('/sysadmin/config', "sysadmin\controllers\ConfigController::index");
 
 
 $app->match('/sysadmin/extension', "sysadmin\controllers\ExtensionController::index"); 
+
+
+$app->match('/sysadmin/api2app', "sysadmin\controllers\API2ApplicationList::index"); 
+$app->match('/sysadmin/api2app/', "sysadmin\controllers\API2ApplicationList::index"); 
+$app->match('/sysadmin/api2app/{id}', "sysadmin\controllers\API2Application::show")
+		->assert('id', '\d+'); 
+$app->match('/sysadmin/api2app/{id}/', "sysadmin\controllers\API2Application::show")
+		->assert('id', '\d+'); 
+
+$app->match('/sysadmin/api2app/{id}/history', "sysadmin\controllers\API2Application::history")
+		->assert('id', '\d+'); 
+$app->match('/sysadmin/api2app/{id}/history', "sysadmin\controllers\API2Application::history")
+		->assert('id', '\d+'); 
+
+
 

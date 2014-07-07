@@ -108,8 +108,9 @@ class ImportURLController {
 								
 				$area = null;
 				$areaRepository = new AreaRepository();
-				if (isset($_POST['areas']) && is_array($_POST['areas'])) {
-					foreach ($_POST['areas'] as $areaCode) {
+				$postAreas = $request->request->get('areas');
+				if (is_array($postAreas)) {
+					foreach ($postAreas as $areaCode) {
 						if (substr($areaCode, 0, 9) == 'EXISTING:') {
 							$area = $areaRepository->loadBySlug($app['currentSite'], substr($areaCode,9));
 						}
@@ -148,8 +149,6 @@ class ImportURLController {
 	}
 
 	function enable($slug,Request $request, Application $app) {
-		global $WEBSESSION;
-
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Import does not exist.");
 		}
@@ -164,7 +163,7 @@ class ImportURLController {
 			return $app['twig']->render('site/importurl/enable.clash.html.twig',$this->parameters);
 		}
 		
-		if (isset($_POST['enable']) && $_POST['enable'] == 'yes' && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('enable') == 'yes' && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 				$iRepository->enable($this->parameters['importurl'], userGetCurrent());
 				return $app->redirect("/importurl/".$this->parameters['importurl']->getSlug());
 		}
@@ -172,9 +171,7 @@ class ImportURLController {
 		return $app['twig']->render('site/importurl/enable.html.twig',$this->parameters);
 	}
 
-	function disable($slug,Request $request, Application $app) {
-		global $WEBSESSION;
-		
+	function disable($slug,Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Import does not exist.");
 		}
@@ -183,7 +180,7 @@ class ImportURLController {
 			die ('NO'); // TODO
 		}
 		
-		if (isset($_POST['disable']) && $_POST['disable'] == 'yes' && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+		if ($request->request->get('disable') == 'yes' && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 				$iRepository = new ImportURLRepository();
 				$iRepository->disable($this->parameters['importurl'], userGetCurrent());
 				

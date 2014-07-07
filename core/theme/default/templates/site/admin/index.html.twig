@@ -25,18 +25,23 @@
 	
 		<li><a href="/admin/profile"><img src="/theme/default/img/actionProfileIcon.png">Profile</a></li>
 
-		{% if not config.isSingleSiteMode %}
-			<li><a href="/admin/visibility"><img src="/theme/default/img/actionVisibilityIcon.png">Visiblity</a></li>
-			{% if currentUserOwnsSite %}
-				<li><a href="/admin/owner"><img src="/theme/default/img/actionOwnerIcon.png">Owner</a></li>
-			{% endif %}
+		<li><a href="/admin/visibility"><img src="/theme/default/img/actionVisibilityIcon.png">Visiblity</a></li>
+		
+		{% if not config.isSingleSiteMode and currentUserOwnsSite %}
+			<li><a href="/admin/owner"><img src="/theme/default/img/actionOwnerIcon.png">Owner</a></li>
 		{% endif %}
-					
+		
 		<li><a href="/admin/users"><img src="/theme/default/img/actionUsersIcon.png">Users (Administrators & Editors)</a></li>
 		
 		<li><a href="/admin/countries"><img src="/theme/default/img/actionPlacesIcon.png">Countries</a></li>
 		
-		<li><a href="/admin/areas"><img src="/theme/default/img/actionPlacesIcon.png">Areas in a country</a></li>
+		{% if currentSite.isFeaturePhysicalEvents %}
+			<li><a href="/admin/areas"><img src="/theme/default/img/actionPlacesIcon.png">Areas in a country</a></li>
+		{% endif %}
+		
+		{% if currentSite.getIsFeatureTag %}
+			<li><a href="/admin/tag"><img src="/theme/default/img/actionTagsIcon.png">Tags</a></li>
+		{% endif %}
 		
 		<li><a href="/admin/sendemail"><img src="/theme/default/img/actionEmailIcon.png">Send Email with Events</a></li>
 		

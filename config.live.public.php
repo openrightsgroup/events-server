@@ -10,7 +10,7 @@ $CONFIG->databaseUser = 'orgevents';
 
 
 
-$CONFIG->assetsVersion = 1;
+$CONFIG->assetsVersion = 2;
 
 $CONFIG->isSingleSiteMode = true;
 $CONFIG->singleSiteID = 1;

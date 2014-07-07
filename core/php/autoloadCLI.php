@@ -10,27 +10,6 @@
 use models\SiteModel;
 use models\UserAccountModel;
 
-	
-///////////////////////// App
-$app = new Silex\Application(); 
-$app['debug'] = $CONFIG->isDebug;
-foreach($CONFIG->extensions as $extensionName) {
-	$className = "Extension".$extensionName;
-	require APP_ROOT_DIR.'/extension/'.$extensionName.'/extension.php';
-	$app['extension'.strtolower($extensionName)] = new $className($app);
-}
-
-///////////////////////// LOGGING
-if ($CONFIG->logFile) {
-	$app->register(new Silex\Provider\MonologServiceProvider(), array(
-		'monolog.logfile' => $CONFIG->logFile,
-		'monolog.name'=>$CONFIG->siteTitle,
-		'monolog.level'=>  \Symfony\Bridge\Monolog\Logger::ERROR,
-	));
-	if ($CONFIG->logToStdError) {
-		$app['monolog']->pushHandler(new Monolog\Handler\StreamHandler('php://stderr', Monolog\Logger::ERROR));
-	}
-}
 
 ///////////////////////// TWIG
 $dirs = array();
@@ -105,17 +84,14 @@ function configureAppForUser(UserAccountModel $user = null) {
 }
 
 ///////////////////////// SWIFT MAILER
-// Outside Silex. There is no need for it to be inside it and it does some funny spooling shit, so just keep it outside
-$SWIFT_MAILER = null;
-function getSwiftMailer() {
-	global $SWIFT_MAILER, $CONFIG;
-	if ($SWIFT_MAILER == null) {
-		$transport = Swift_SmtpTransport::newInstance($CONFIG->SMTPHost, $CONFIG->SMTPPort);
-		$transport->setUsername($CONFIG->SMTPUsername);
-		$transport->setPassword($CONFIG->SMTPPassword);
-		$transport->setEncryption($CONFIG->SMTPEncyption);
-		$SWIFT_MAILER = Swift_Mailer::newInstance($transport);
-	}
-	return $SWIFT_MAILER;
-}
+// We do NOT use $app->register(new Silex\Provider\SwiftmailerServiceProvider()); here because that 
+// sets up some options that make sense for web but not for CLI like Spooling.
+$app['mailer'] =  function ($c) {
+	global $CONFIG;
+	$transport = Swift_SmtpTransport::newInstance($CONFIG->SMTPHost, $CONFIG->SMTPPort);
+	$transport->setUsername($CONFIG->SMTPUsername);
+	$transport->setPassword($CONFIG->SMTPPassword);
+	$transport->setEncryption($CONFIG->SMTPEncyption);
+	return Swift_Mailer::newInstance($transport);
+};
 

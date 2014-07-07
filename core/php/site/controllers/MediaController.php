@@ -40,19 +40,17 @@ class MediaController {
 		return true;
 	}
 	
-	function show($slug, Request $request, Application $app) {
-		global $WEBSESSION, $FLASHMESSAGES;
-		
+	function show($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Media does not exist.");
 		}
 		
-		if (isset($_POST) && isset($_POST['CSFRToken']) && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
-			if ($_POST['action'] == 'makeSiteLogo' && $app['currentUserCanAdminSite']) {
+		if ($request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
+			if ($request->request->get('action') == 'makeSiteLogo' && $app['currentUserCanAdminSite']) {
 				$app['currentSite']->setLogoMediaId($this->parameters['media']->getId());
 				$siteProfileMediaRepository = new SiteProfileMediaRepository();
 				$siteProfileMediaRepository->createOrEdit($app['currentSite'], userGetCurrent());
-				$FLASHMESSAGES->addMessage("Saved.");
+				$app['flashmessages']->addMessage("Saved.");
 				return $app->redirect("/media/".$this->parameters['media']->getSlug());
 			}
 		}
@@ -62,36 +60,27 @@ class MediaController {
 	}
 	
 	function imageThumbnail($slug, Request $request, Application $app) {
-		global $CONFIG;
-		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Media does not exist.");
 		}
 		
-		return $this->parameters['media']->getThumbnailResponse($CONFIG->mediaBrowserCacheExpiresInseconds);
-		
+		return $this->parameters['media']->getThumbnailResponse($app['config']->mediaBrowserCacheExpiresInseconds);
 	}
 	
 	function imageNormal($slug, Request $request, Application $app) {
-		global $CONFIG;
-		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Media does not exist.");
 		}
 		
-		return $this->parameters['media']->getNormalResponse($CONFIG->mediaBrowserCacheExpiresInseconds);
-		
+		return $this->parameters['media']->getNormalResponse($app['config']->mediaBrowserCacheExpiresInseconds);
 	}
 	
 	function imageFull($slug, Request $request, Application $app) {
-		global $CONFIG;
-		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Media does not exist.");
 		}
 		
-		return $this->parameters['media']->getResponse($CONFIG->mediaBrowserCacheExpiresInseconds);
-		
+		return $this->parameters['media']->getResponse($app['config']->mediaBrowserCacheExpiresInseconds);		
 	}
 	
 }

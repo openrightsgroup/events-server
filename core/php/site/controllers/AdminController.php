@@ -4,18 +4,22 @@ namespace site\controllers;
 
 use Silex\Application;
 use site\forms\SiteEditProfileForm;
+use site\forms\AdminTagNewForm;
 use Symfony\Component\HttpFoundation\Request;
 use models\SiteModel;
 use models\MediaModel;
+use models\TagModel;
 use repositories\SiteRepository;
 use repositories\UserAccountRepository;
 use repositories\UserInSiteRepository;
 use repositories\CountryInSiteRepository;
 use repositories\MediaRepository;
 use repositories\SiteProfileMediaRepository;
+use repositories\TagRepository;
 use repositories\builders\UserAccountRepositoryBuilder;
 use repositories\builders\CountryRepositoryBuilder;
 use repositories\builders\MediaRepositoryBuilder;
+use repositories\builders\TagRepositoryBuilder;
 use site\forms\AdminVisibilityPublicForm;
 use site\forms\AdminUsersAddForm;
 
@@ -42,11 +46,9 @@ class AdminController {
 			));
 	}
 		
-	function profile(Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES;
-		
-		$form = $app['form.factory']->create(new SiteEditProfileForm(), $app['currentSite']);
-		
+	function profile(Request $request, Application $app) {		
+		$form = $app['form.factory']->create(new SiteEditProfileForm($app['config']), $app['currentSite']);
+				
 		if ('POST' == $request->getMethod()) {
 			$form->bind($request);
 			
@@ -55,18 +57,20 @@ class AdminController {
 				$siteRepository = new SiteRepository();
 				$siteRepository->edit($app['currentSite'], userGetCurrent());
 
-				$newLogo = $form['logo']->getData();
-				if ($newLogo) {
-					$mediaRepository = new MediaRepository();
-					$media = $mediaRepository->createFromFile($newLogo, $app['currentSite'], userGetCurrent());
-					if ($media) {
-						$app['currentSite']->setLogoMediaId($media->getId());
-						$siteProfileMediaRepository = new SiteProfileMediaRepository();
-						$siteProfileMediaRepository->createOrEdit($app['currentSite'], userGetCurrent());
+				if ($app['config']->isFileStore()) {
+					$newLogo = $form['logo']->getData();
+					if ($newLogo) {
+						$mediaRepository = new MediaRepository();
+						$media = $mediaRepository->createFromFile($newLogo, $app['currentSite'], userGetCurrent());
+						if ($media) {
+							$app['currentSite']->setLogoMediaId($media->getId());
+							$siteProfileMediaRepository = new SiteProfileMediaRepository();
+							$siteProfileMediaRepository->createOrEdit($app['currentSite'], userGetCurrent());
+						}
 					}
 				}
 				
-				$FLASHMESSAGES->addMessage("Details saved.");
+				$app['flashmessages']->addMessage("Details saved.");
 				return $app->redirect("/admin/");
 				
 			}
@@ -78,22 +82,21 @@ class AdminController {
 			));
 	}
 		
-	function features(Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES, $WEBSESSION;
-		
-		if ('POST' == $request->getMethod() && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+	function features(Request $request, Application $app) {		
+		if ('POST' == $request->getMethod() && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 				
-			$app['currentSite']->setIsFeatureGroup(isset($_POST['isFeatureGroup']) && $_POST['isFeatureGroup'] == '1');
-			$app['currentSite']->setIsFeatureMap(isset($_POST['isFeatureMap']) && $_POST['isFeatureMap'] == '1');
-			$app['currentSite']->setIsFeatureCuratedList(isset($_POST['isFeatureCuratedList']) && $_POST['isFeatureCuratedList'] == '1');
-			$app['currentSite']->setisFeatureVirtualEvents(isset($_POST['isFeatureVirtualEvents']) && $_POST['isFeatureVirtualEvents'] == '1');
-			$app['currentSite']->setisFeaturePhysicalEvents(isset($_POST['isFeaturePhysicalEvents']) && $_POST['isFeaturePhysicalEvents'] == '1');
-			$app['currentSite']->setIsFeatureImporter(isset($_POST['isFeatureImporter']) && $_POST['isFeatureImporter'] == '1');
+			$app['currentSite']->setIsFeatureGroup($request->request->get('isFeatureGroup') == '1');
+			$app['currentSite']->setIsFeatureMap($request->request->get('isFeatureMap') == '1');
+			$app['currentSite']->setIsFeatureCuratedList($request->request->get('isFeatureCuratedList')== '1');
+			$app['currentSite']->setisFeatureVirtualEvents($request->request->get('isFeatureVirtualEvents') == '1');
+			$app['currentSite']->setisFeaturePhysicalEvents($request->request->get('isFeaturePhysicalEvents') == '1');
+			$app['currentSite']->setIsFeatureImporter($request->request->get('isFeatureImporter') == '1');
+			$app['currentSite']->setIsFeatureTag($request->request->get('isFeatureTag') == '1');
 
 			$siteRepository = new SiteRepository();
 			$siteRepository->edit($app['currentSite'], userGetCurrent());
 
-			$FLASHMESSAGES->addMessage("Details saved.");
+			$app['flashmessages']->addMessage("Details saved.");
 			return $app->redirect("/admin/");
 			
 		}
@@ -102,17 +105,15 @@ class AdminController {
 			));
 	}
 		
-	function settings(Request $request, Application $app) {
-		global $CONFIG, $FLASHMESSAGES, $WEBSESSION;
-		
-		if ('POST' == $request->getMethod() && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+	function settings(Request $request, Application $app) {		
+		if ('POST' == $request->getMethod() && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 				
-			$app['currentSite']->setPromptEmailsDaysInAdvance($_POST['PromptEmailsDaysInAdvance']);
+			$app['currentSite']->setPromptEmailsDaysInAdvance($request->request->get('PromptEmailsDaysInAdvance'));
 
 			$siteRepository = new SiteRepository();
 			$siteRepository->edit($app['currentSite'], userGetCurrent());
 
-			$FLASHMESSAGES->addMessage("Details saved.");
+			$app['flashmessages']->addMessage("Details saved.");
 			return $app->redirect("/admin/");
 			
 		}
@@ -123,10 +124,7 @@ class AdminController {
 	
 	
 	function visibility(Request $request, Application $app) {
-
-
-		$form = $app['form.factory']->create(new AdminVisibilityPublicForm(), $app['currentSite']);
-		
+		$form = $app['form.factory']->create(new AdminVisibilityPublicForm($app['config']), $app['currentSite']);
 				
 		if ('POST' == $request->getMethod()) {
 			$form->bind($request);
@@ -141,26 +139,23 @@ class AdminController {
 			}
 		}
 		
-		
 		return $app['twig']->render('site/admin/visibilityPublic.html.twig', array(
 				'form' => $form->createView(),
 			));
 	}
 	
-	function users(Request $request, Application $app) {
-		global $WEBSESSION;
-		
-		if (isset($_POST['submitted']) && $_POST['submitted'] == 'yes' && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+	function users(Request $request, Application $app) {		
+		if ($request->request->get('submitted') == 'yes' && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			
-			if (isset($_POST['isAllUsersEditors']) && $_POST['isAllUsersEditors'] == 'yes') {
+			if ($request->request->get('isAllUsersEditors') == 'yes') {
 				$app['currentSite']->setIsAllUsersEditors(true);
 				// if all users can edit no need for request acces
 				$app['currentSite']->setIsRequestAccessAllowed(false);
 			} else {
 				$app['currentSite']->setIsAllUsersEditors(false);
-				if (isset($_POST['isRequestAccessAllowed']) && $_POST['isRequestAccessAllowed'] == 'yes') {
+				if ($request->request->get('isRequestAccessAllowed') == 'yes') {
 					$app['currentSite']->setIsRequestAccessAllowed(true);
-					$app['currentSite']->setRequestAccessQuestion($_POST['requestAccessQuestion']);
+					$app['currentSite']->setRequestAccessQuestion($request->request->get('requestAccessQuestion'));
 				} else {
 					$app['currentSite']->setIsRequestAccessAllowed(false);
 				}				
@@ -187,29 +182,27 @@ class AdminController {
 		
 	}
 	
-	function usersActions(Request $request, Application $app) {
-		global $WEBSESSION;
-		
-		if (isset($_POST['userID']) && is_array($_POST['userID'])  && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
+	function usersActions(Request $request, Application $app) {		
+		if ($request->request->get('userID')  && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			$uisr = new UserInSiteRepository();
 			$uar = new UserAccountRepository();
-			if (isset($_POST['actionRemove'])) {
-				foreach($_POST['userID'] as $uid) {
+			if ($request->request->get('actionRemove')) {
+				foreach($request->request->get('userID') as $uid) {
 					$user = $uar->loadByID($uid);
 					if ($user) {
 						$uisr->removeUserAdministratesSite($user, $app['currentSite']);
 						$uisr->removeUserEditsSite($user, $app['currentSite']);
 					}
 				}
-			} else if (isset($_POST['actionAdministrator'])) {
-				foreach($_POST['userID'] as $uid) {
+			} else if ($request->request->get('actionAdministrator')) {
+				foreach($request->request->get('userID') as $uid) {
 					$user = $uar->loadByID($uid);
 					if ($user) {
 						$uisr->markUserAdministratesSite($user, $app['currentSite']);
 					}
 				}
-			} else if (isset($_POST['actionEditor'])) {
-				foreach($_POST['userID'] as $uid) {
+			} else if ($request->request->get('actionEditor')) {
+				foreach($request->request->get('userID') as $uid) {
 					$user = $uar->loadByID($uid);
 					if ($user) {
 						$uisr->removeUserAdministratesSite($user, $app['currentSite']);
@@ -258,15 +251,14 @@ class AdminController {
 	}
 	
 	
-	function countries(Application $app) {		
-		global $WEBSESSION;
+	function countries(Request $request, Application $app) {		
 		
 		$crb = new CountryRepositoryBuilder();
 		$crb->setSiteInformation($app['currentSite']);
 		$countries = $crb->fetchAll();
 		
-		if (isset($_POST['submitted']) && $_POST['submitted'] == 'yes' && $_POST['CSFRToken'] == $WEBSESSION->getCSFRToken()) {
-			$in = is_array($_POST['country']) ? $_POST['country'] : null;
+		if ($request->request->get('submitted') == 'yes' && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
+			$in = is_array($request->request->get('country')) ? $request->request->get('country') : null;
 			$cisr = new CountryInSiteRepository;
 			$countriesCount = 0;
 			$timezones = array();
@@ -328,6 +320,47 @@ class AdminController {
 		return $app['twig']->render('site/admin/areas.html.twig', array(
 				'countries'=>$countries,
 			));
+	}
+	
+	function listTags(Application $app) {
+		
+		$trb = new TagRepositoryBuilder();
+		$trb->setSite($app['currentSite']);
+		$trb->setIncludeDeleted(true);
+		$tags = $trb->fetchAll();
+		
+		return $app['twig']->render('site/admin/listTags.html.twig', array(	
+				'tags'=>$tags,
+			));
+	}
+	
+	function newTag(Request $request, Application $app) {
+
+
+		$tag = new TagModel();
+
+		$form = $app['form.factory']->create(new AdminTagNewForm(), $tag);
+		
+		if ('POST' == $request->getMethod()) {
+			$form->bind($request);
+
+			if ($form->isValid()) {
+
+				$tagRepo = new TagRepository();
+				$tagRepo->create($tag, $app['currentSite'], userGetCurrent());
+				
+				return $app->redirect('/admin/tag/'.$tag->getSlugForUrl());
+				
+			}
+		}
+
+
+
+		return $app['twig']->render('site/admin/newTag.html.twig', array(
+				'form' => $form->createView(),	
+			));
+
+
 	}
 		
 	

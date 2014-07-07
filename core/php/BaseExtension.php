@@ -17,6 +17,15 @@ abstract class BaseExtension {
 	function __construct(Application $app) {
 		
 	}
+	
+	public abstract function getId();
+	
+	
+	public abstract function getTitle();
+	
+	public function getDescription() {
+		return null;
+	}
 
 	
 	
@@ -24,7 +33,38 @@ abstract class BaseExtension {
 		
 	}
 	
+	public function getUserNotificationTypes() {
+		return array();
+	}
 	
+	public function getUserNotificationType($type) {
+		return null;
+	}
+	
+	public function getUserNotificationPreferenceTypes() {
+		return array();
+	}
+	
+	public function getUserNotificationPreference($type) {
+		return null;
+	}
+	
+	public function getAppConfigurationDefinitions() {
+		return array();
+	}
+	
+	
+	public function getAppConfigurationDefinition($key) {
+		foreach($this->getAppConfigurationDefinitions() as $def) {
+			if ($def->getKey() == $key) {
+				return $def;
+			}
+		}
+	}
+	
+	public function getImportURLHandlers() {
+		return array();
+	}
 	
 }
 

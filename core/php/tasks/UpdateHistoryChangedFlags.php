@@ -8,11 +8,17 @@ use repositories\AreaHistoryRepository;
 use repositories\VenueHistoryRepository;
 use repositories\SiteHistoryRepository;
 use repositories\EventHistoryRepository;
+use repositories\TagHistoryRepository;
+use repositories\CuratedListHistoryRepository;
+use repositories\ImportURLHistoryRepository;
 use models\GroupHistoryModel;
 use models\AreaHistoryModel;
 use models\VenueHistoryModel;
 use models\SiteHistoryModel;
 use models\EventHistoryModel;
+use models\TagHistoryModel;
+use models\CuratedListHistoryModel;
+use models\ImportURLHistoryModel;
 
 
 /**
@@ -110,11 +116,56 @@ class UpdateHistoryChangedFlags {
 		if ($verbose) print "\n\n";
 
 
+		################################################################################
+
+		if ($verbose) print "Tags ";
+		$tagHistoryRepo = new TagHistoryRepository();
+		$stat = $DB->prepare("SELECT * FROM tag_history");
+		$stat->execute();
+		while($data = $stat->fetch()) {
+			$tagHistory = new TagHistoryModel();
+			$tagHistory->setFromDataBaseRow($data);
+
+			$tagHistoryRepo->ensureChangedFlagsAreSet($tagHistory);
+			if ($verbose) print ".";
+		}
+		if ($verbose) print "\n\n";
+
+
+		################################################################################
+
+		if ($verbose) print "Curated Lists ";
+		$curatedListHistoryRepo = new CuratedListHistoryRepository();
+		$stat = $DB->prepare("SELECT * FROM curated_list_history");
+		$stat->execute();
+		while($data = $stat->fetch()) {
+			$curatedListHistory = new CuratedListHistoryModel();
+			$curatedListHistory->setFromDataBaseRow($data);
+
+			$curatedListHistoryRepo->ensureChangedFlagsAreSet($curatedListHistory);
+			if ($verbose) print ".";
+		}
+		if ($verbose) print "\n\n";
+
+
+		################################################################################
+
+		if ($verbose) print "Import URL ";
+		$importURLHistoryRepo = new ImportURLHistoryRepository();
+		$stat = $DB->prepare("SELECT * FROM import_url_history");
+		$stat->execute();
+		while($data = $stat->fetch()) {
+			$importURLHistory = new ImportURLHistoryModel();
+			$importURLHistory->setFromDataBaseRow($data);
+
+			$importURLHistoryRepo->ensureChangedFlagsAreSet($importURLHistory);
+			if ($verbose) print ".";
+		}
+		if ($verbose) print "\n\n";
+
 
 		if ($verbose) print "Finished ".date("c")."\n";
 
-		
-		
 	}
 
 	

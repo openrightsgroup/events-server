@@ -22,9 +22,6 @@
 	{% if currentUserCanEditSite %}
 		{% if not event.isDeleted %}
 			<li class="action"><a href="/event/{{ event.slugForUrl }}/edit"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> edit</a></li>
-			{% if currentSite.isFeaturePhysicalEvents %}
-				<li class="action"><a href="/event/{{ event.slugForUrl }}/edit/venue"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> edit venue</a></li>
-			{% endif %}
 		{% endif %}
 		{% if not event.isImported %}
 			{% if not event.isDeleted %}
@@ -42,33 +39,52 @@
 
 {% block innerContent %}
 
-	<div class="event">
+	<div class="event" itemscope itemtype="http://schema.org/Event">
+		<meta itemprop="name" content="{{ event.summaryDisplay|e('html_attr') }}" />
 
-	{% if event.isdeleted %}
-		<div class="dateTimeIcon">
-			<div class="dateIcon">
-				<span class="deleted">Deleted!</span>
-			</div>
-		</div>
-	{% else %}
-		<div class="dateTimeIcon">
-			<time datetime="{{ event.getStartAt|tolocaltimeformatted('c', currentTimeZone) }}">
+		{% if event.isdeleted %}
+			<div class="dateTimeIcon">
 				<div class="dateIcon">
-					<span class="startDay">{{ event.getStartAt|tolocaltimeformatted('D', currentTimeZone) }}</span>
-					<span class="startDate">{{ event.getStartAt|tolocaltimeformatted('jS', currentTimeZone) }}</span>
-					<span class="startMonthYear">{{ event.getStartAt|tolocaltimeformatted('M \'y', currentTimeZone) }}</span>
+					<span class="deleted">Deleted!</span>
 				</div>
-				<div class="timeIcon">
-					<span class="startTime">{{ event.getStartAt|tolocaltimeformatted12or24hourclock('g:ia', 'H:i', currentUserClock12Hour, currentTimeZone) }}</span>
-				</div>
-			</time>				
-		</div>
-	{% endif %}
+			</div>
+		{% else %}
+			<div class="dateTimeIcon">
+				<time datetime="{{ event.getStartAt|tolocaltimeformatted('c', currentTimeZone) }}">
+					<div class="dateIcon">
+						<span class="startDay">{{ event.getStartAt|tolocaltimeformatted('D', currentTimeZone) }}</span>
+						<span class="startDate">{{ event.getStartAt|tolocaltimeformatted('jS', currentTimeZone) }}</span>
+						<span class="startMonthYear">{{ event.getStartAt|tolocaltimeformatted('M \'y', currentTimeZone) }}</span>
+					</div>
+					<div class="timeIcon">
+						<span class="startTime">{{ event.getStartAt|tolocaltimeformatted12or24hourclock('g:ia', 'H:i', currentUserClock12Hour, currentTimeZone) }}</span>
+					</div>
+				</time>				
+			</div>
+		{% endif %}
 
-		<p class="description">{{ event.description | nl2br  | linkify }}</p>
+		<p class="description" itemprop="description">{{ event.description | nl2br  | linkify }}</p>
+	
+		{% if tags %}
+			<div class="inlineTags">
+				Tags:
+				<ul class="inlineTags">
+					{% for tag in tags %}
+						<li class="tag">
+							<span class="content"><a href="/tag/{{ tag.slugForURL }}">{{ tag.title }}</a></span>
+							<span class="aftercontent">&nbsp;</span>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
 
 		{% if event.url %}
 			<p class="description">More details at <a href="{{ event.url }}" target="_blank">{{ event.url | linkinfo }}</a></p>
+		{% endif %}
+		
+		{% if event.ticketUrl %}
+			<p class="description">Get your tickets at <a href="{{ event.ticketUrl }}" target="_blank">{{ event.ticketUrl | linkinfo }}</a></p>
 		{% endif %}
 		
 		{% if groups|length > 0 %}
@@ -97,35 +113,41 @@
 		{% endif %}
 				
 		{% if venue is not null %}
-			<p class="venueTitle">About <a href="/venue/{{ venue.slugForUrl }}">{{ venue.title }}</a></p>
-			{% if venue.description %}
-				<p class="venueDescription">{{ venue.description | nl2br  | linkify }}</p>
-			{% else %}
-				<p class="venueDescription">No details known.</p>
-			{% endif %}
-			<div id="Map" class="map"></div>
-			{% if mediasForVenue %}
-				<ul class="mediaGrid">
-					{% for media in mediasForVenue %}
-						<li><a href="/media/{{ media.slug }}" onclick="showMediaPopup({{ media.slug }}); return false;"><img src="/media/{{ media.slug }}/thumbnail"></a></li>	
-					{% endfor %}
-				</ul>
-				<div class="afterMediaGrid"></div>
-			{% endif %}
+			<div itemprop="location" itemscope itemtype="http://schema.org/Place">
+				<p class="venueTitle">About <a href="/venue/{{ venue.slugForUrl }}" itemprop="url"><span itemprop="name">{{ venue.title }}</span></a></p>
+				{% if venue.description %}
+					<p class="venueDescription" itemprop="description">{{ venue.description | nl2br  | linkify }}</p>
+				{% else %}
+					<p class="venueDescription">No details known.</p>
+				{% endif %}
+				<div id="Map" class="map"></div>
+				{% if mediasForVenue %}
+					<ul class="mediaGrid">
+						{% for media in mediasForVenue %}
+							<li><a href="/media/{{ media.slug }}" onclick="showMediaPopup({{ media.slug }}); return false;"><img src="/media/{{ media.slug }}/thumbnail"></a></li>	
+						{% endfor %}
+					</ul>
+					<div class="afterMediaGrid"></div>
+				{% endif %}
+			</div>
 		{% endif %}
 
 		
 		{% if childAreas and currentUserCanEditSite and event.isPhysical and currentSite.isFeaturePhysicalEvents and not event.isDeleted %}
 			<div id="userCanPushToChildAreaWrapper">
 				<p>Is {% if venue %}"{{ venue.title }}"{% else %}this{% endif %} in one of these places?</p>
-				<form action="/event/{{ event.slugForUrl }}/moveToArea" method="post"  class="styled">
+				<form action="/event/{{ event.slugForUrl }}/moveToArea" method="post" id="PushToChildAreaForm">
 					<input type="hidden" name="CSFRToken" value="{{ getCSFRToken() }}">
 					<input type="hidden" name="submitted" value="yes">
 					<ul class="areas">
 						{% for childArea in childAreas %}
-							<li class="area">{% spaceless %}<span class="content"><label>
-								<input type="radio" name="area" value="{{ childArea.slug }}">{{ childArea.title }}
-							</label></span>{% endspaceless %}</li>
+							<li class="area">
+								{% spaceless %}<span class="content"><label>
+									<input type="radio" name="area" value="{{ childArea.slug }}">{{ childArea.title }}
+								</label>&nbsp;</span>{% endspaceless %}
+								{# The &nbsp; between the </label> and the span </span> is needed or IE will draw all of these in one long line. #}
+								<span class="aftercontent">&nbsp;</span>
+							</li>
 						{% endfor %}
 						<li class="newarea"><label><input type="radio" name="area" value="new">Other:</label> <input type="text" name="newAreaTitle"></li>
 					</ul>
@@ -134,12 +156,14 @@
 			</div>
 		{% endif %}
 		
+			
+				
 		<div class="dateAndLocationWrapper">
 			{% if event.isVirtual %}
 				<div class="dateAndLocationWrapper"><div class="location"><a href="/venue/virtual">This event is Virtual</a></div></div>
 			{% endif %}			
 			{% if country or venue%}
-				<div class="location">
+				<div class="location" itemprop="location" itemscope itemtype="http://schema.org/PostalAddress">
 					{% if event.isPhysical and venue %}
 						<div class="venue"><a href="/venue/{{ venue.slugForUrl }}">{{ venue.title }}</a></div>
 					{% endif %}
@@ -150,17 +174,17 @@
 					{% for parentArea in parentAreas|reverse %}
 						<div class="area"><a href="/area/{{ parentArea.slugForUrl }}">{{ parentArea.title }}</a></div>
 					{% endfor %}
-					{% if venue and venue.addressCode %}<div class="addressCode">{{ venue.addressCode  }}</div>{% endif %}
+					{% if venue and venue.addressCode %}<div class="addressCode" itemprop="postalCode">{{ venue.addressCode  }}</div>{% endif %}
 					{% if country %}
-						<div class="country"><a href="/country/{{ country.twoCharCode }}">{{ country.title }} <img src="/theme/default/img/countries/{{ country.twoCharCode|lower }}.png" alt="Flag"></a></div>
+						<div class="country" itemprop="addressCountry"><a href="/country/{{ country.twoCharCode }}">{{ country.title }} <img src="/theme/default/img/countries/{{ country.twoCharCode|lower }}.png" alt="Flag"></a></div>
 					{% endif %}
 				</div>
 			{% endif %}
 			{% if currentTimeZone == event.timezone %}
-				{% include 'site/common/eventFromToLine.html.twig' with {'event': event, 'timezone':currentTimeZone, 'showTimeZone':currentSite.cachedIsMultipleTimezones} %}
+				{% include 'site/common/eventFromToLine.html.twig' with {'startAt': event.startAtInUTC, 'endAt': event.endAtInUTC, 'timezone':currentTimeZone, 'showTimeZone':currentSite.cachedIsMultipleTimezones} %}
 			{% else %}
-				{% include 'site/common/eventFromToLine.html.twig' with {'event': event, 'timezone':event.timezone, 'showTimeZone':true} %}				
-				{% include 'site/common/eventFromToLine.html.twig' with {'event': event, 'timezone':currentTimeZone, 'showTimeZone':true} %}
+				{% include 'site/common/eventFromToLine.html.twig' with {'startAt': event.startAtInUTC, 'endAt': event.endAtInUTC, 'timezone':event.timezone, 'showTimeZone':true} %}				
+				{% include 'site/common/eventFromToLine.html.twig' with {'startAt': event.startAtInUTC, 'endAt': event.endAtInUTC, 'timezone':currentTimeZone, 'showTimeZone':true} %}
 			{% endif %}
 		</div>
 		
@@ -200,8 +224,19 @@
 			{% include 'site/common/eventUsersAttending.html.twig' with {} %}				
 		</div>
 				
-		<p></p>
-
+		{% if group and isGroupRunningOutOfFutureEvents and currentUserCanEditSite and currentSite.isFeatureGroup and not group.isDeleted %}
+			<div class="isGroupRunningOutOfFutureEventsWarning">
+				<p>
+					Do you know of <a href="/group/{{ group.slugForUrl }}">any more events for {{ group.title }}</a>?
+					{% if isGroupRunningOutOfFutureEvents == 1 %}
+						We are about to run out of future events!
+					{% else %}
+						We don't know of any future events.
+					{% endif %}
+				</p>
+			</div>
+		{% endif %}
+				
 		<div class="afterEventListing"></div>
 	</div>
 	
@@ -215,11 +250,13 @@
 						{% if curatedlist.isEventInlist %}
 							<form action="/curatedlist/{{ curatedlist.slug }}/event/{{ event.slug }}/remove" method="post">
 								<input type="hidden" name="CSFRToken" value="{{ getCSFRToken() }}">
+								<input type="hidden" name="returnTo" value="event">
 								<input type="submit" value="Remove">
 							</form>
 						{% else %}
 							<form action="/curatedlist/{{ curatedlist.slug }}/event/{{ event.slug }}/add" method="post">
 								<input type="hidden" name="CSFRToken" value="{{ getCSFRToken() }}">
+								<input type="hidden" name="returnTo" value="event">
 								<input type="submit" value="Add">
 							</form>					
 						{% endif %}

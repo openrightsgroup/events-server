@@ -6,6 +6,7 @@
  * @author James Baster <james@jarofgreen.co.uk>
 */
 
+@import("../reset.less");
 @import("../mixins.less");
 
 
@@ -224,6 +225,15 @@ ul.history {
 			font-style: italic;
 			font-size: 0.8em;
 		}
+		.fieldChanged {
+			.field {
+				display: inline;
+				font-style: italic;
+			}
+			.value {
+				display: inline;
+			}
+		}
 	}
 	li.event {
 		background: #dcc;
@@ -236,6 +246,92 @@ ul.history {
 	}
 	li.deleted {
 		text-color: #999;
+	}
+}
+
+ul.usernotifications {
+	li.usernotificationunread, li.usernotificationread {
+		padding: 10px;
+		border-bottom: 2px solid #ccc;
+		div.title {
+			display: block;
+			color: #333;
+		}
+		div.timesince, div.site, div.id  {
+			display: inline;
+			color: #999;
+			font-size: 0.8em;
+			padding: 5px 0;
+		}
+	}
+	li.usernotificationunread div.title {
+		font-size: 1.4em;
+	}
+	li.usernotificationunread div.title {
+		font-size: 1.1em;
+	}
+}
+
+
+ul.areasAdmin {
+	padding: 10px 5px 10px 20px;
+	font-weight: 200;
+	li.area {
+		padding: 2px;
+		span.content {
+			font-size: 13pt;
+			background: url('/theme/default/img/areaBackground.png') no-repeat #0DA20D;
+		}
+		span.contentWithEvents {
+			font-size: 13pt;
+			background: url('/theme/default/img/areaBackground.png') no-repeat #0DA20D;
+		}
+		span.contentWithNoEvents {
+			font-size: 10pt;
+			background: url('/theme/default/img/areaBackground.png') no-repeat #0DA20D;
+		}
+		span.contentNew {
+			font-size: 10pt;
+			background: url('/theme/default/img/areaBackground.png') no-repeat #676767;
+		}
+		span.content, span.contentWithEvents, span.contentWithNoEvents, span.contentNew {
+			white-space: nowrap;
+			.rounded-corners(2px);
+			padding: 2px 2px 2px 20px;
+			color: white;
+			a {
+				color: white;
+				text-decoration: none;
+			}
+		}
+	}
+}
+
+ul.breadcrumbs {
+	padding: 10px;
+	text-transform:lowercase;
+	li {
+		display: inline;
+		@media screen and (max-width: 800px) {
+			display:block;
+		}
+		font-size: 0.8em;
+		padding: 5px 10px 5px 15px;
+		background: url('/theme/default/imgsysadmin/breadcrumbsDivider.png') left center no-repeat;
+		a {
+			text-decoration: none;
+			color: black;
+		}
+		a:hover {
+			text-decoration: underline;
+			color: black;
+		}
+	}
+	li.current {
+		a, a:hover {
+			text-decoration: none;
+			color: #555;
+		}
 	}
 }
 

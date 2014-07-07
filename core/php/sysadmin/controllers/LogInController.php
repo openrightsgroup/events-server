@@ -22,10 +22,7 @@ use sysadmin\forms\LogInUserForm;
 class LogInController {
 	
 	
-	function index(Request $request, Application $app) {
-		
-		global $CONFIG, $WEBSESSION;
-				
+	function index(Request $request, Application $app) {				
 		$form = $app['form.factory']->create(new LogInUserForm());
 		
 		if ('POST' == $request->getMethod()) {
@@ -34,8 +31,8 @@ class LogInController {
 			if ($form->isValid()) {
 				$data = $form->getData();
 				
-				if (userGetCurrent()->checkPassword($data['password']) && $data['extrapassword'] == $CONFIG->sysAdminExtraPassword) {
-					$_SESSION['sysAdminLastActive'] = \TimeSource::time();
+				if (userGetCurrent()->checkPassword($data['password']) && $data['extrapassword'] == $app['config']->sysAdminExtraPassword) {
+					$app['websession']->set('sysAdminLastActive', \TimeSource::time());
 					return $app->redirect("/sysadmin");
 				} else {
 					$form->addError(new FormError('passwords wrong'));

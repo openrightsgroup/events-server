@@ -8,7 +8,8 @@
  * @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
  * @author James Baster <james@jarofgreen.co.uk>
  */
-class ExtensionCore extends BaseExtension {
-	
-}
+
+
+// In other modules, there is a line here to load the extension into the extension manager. 
+// We don't need this in core at the moment.
 

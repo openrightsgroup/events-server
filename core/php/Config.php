@@ -115,6 +115,7 @@ class Config {
 	public $newSiteHasFeatureGroup = true;
 	public $newSiteHasFeatureVirtualEvents = false;
 	public $newSiteHasFeaturePhysicalEvents = true;
+	public $newSiteHasFeatureTag = false;
 	public $newSitePromptEmailsDaysInAdvance = 10;
 	public $newSiteHasQuotaCode = 'BASIC';
 	
@@ -145,6 +146,12 @@ class Config {
 	public $sponsor1Link = null;
 	public $sponsor1Image = null;
 
+	public $sponsor2MightExist = false;
+	public $sponsor2Text = null;
+	public $sponsor2Html = null;
+	public $sponsor2Link = null;
+	public $sponsor2Image = null;
+
 	public $apiExtraHeader1Html = null;
 	public $apiExtraHeader1Text = null;
 	
@@ -157,6 +164,11 @@ class Config {
 	public $SMTPPassword = null;
 	public $SMTPEncyption = null;
 	public $SMTPAuthMode = null;
+		
+	public $recurEventForDaysInFutureWhenWeekly = 93; // 3 * 31
+	public $recurEventForDaysInFutureWhenMonthly = 186; // 6 * 31
+	
+	public $CLIAPI1Enabled = false;
 	
 	function getWebIndexDomainSecure() {
 		return $this->hasSSL ? "https://".$this->webIndexDomainSSL : "http://".$this->webIndexDomain;
@@ -167,6 +179,9 @@ class Config {
 		} else {
 			return $this->hasSSL ? "https://".$siteslug.".".$this->webSiteDomainSSL : "http://".$siteslug.".".$this->webSiteDomain;
 		}
+	}
+	function isFileStore() {
+		return (boolean)$this->fileStoreLocation;
 	}
 }
 	

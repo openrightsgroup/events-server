@@ -1,0 +1,37 @@
+{#
+ # @package Core
+ # @link http://ican.openacalendar.org/ OpenACalendar Open Source Software - Website
+ # @license http://ican.openacalendar.org/license.html 3-clause BSD
+ # @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
+ # @author James Baster <james@jarofgreen.co.uk>
+ #}
+{% extends 'site/event/page2col.html.twig' %}
+
+
+{% block pageTitle %}Edit {{ event.summaryDisplay }} - {% endblock %} 
+
+{% block innerContentLeft %}
+	What would you like to edit?	
+{% endblock %}
+
+{% block innerContentRight %}
+	
+	<ul class="actionList">
+	
+		<li><img src="/theme/default/img/actionIcon.png"><a href="/event/{{ event.slugForURL }}/edit/details">Edit Details</a></li>
+	
+		{% if currentSite.isFeaturePhysicalEvents %}
+			<li><img src="/theme/default/img/actionIcon.png"><a href="/event/{{ event.slugForUrl }}/edit/venue">Edit Venue</a></li>
+		{% endif %}
+
+		{% if currentSite.isFeatureTag %}
+			<li><img src="/theme/default/img/actionIcon.png"><a href="/event/{{ event.slugForUrl }}/edit/tags">Edit Tags</a></li>
+		{% endif %}
+
+		{% if currentSite.isFeatureGroup %}
+			<li><img src="/theme/default/img/actionIcon.png"><a href="/event/{{ event.slugForUrl }}/edit/groups">Edit Groups</a></li>
+		{% endif %}
+
+	</ul>
+
+{% endblock %}

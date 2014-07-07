@@ -67,8 +67,8 @@ class EventListICalBuilder extends BaseEventListBuilder  {
 			$txt .= $this->getIcalLine('SUMMARY',$event->getSummaryDisplay());
 			
 			$url = $CONFIG->isSingleSiteMode ?
-					'http://'.$CONFIG->webSiteDomain.'/event/'.$event->getSlug() : 
-					'http://'.$siteSlug.".".$CONFIG->webSiteDomain.'/event/'.$event->getSlug() ; 
+					'http://'.$CONFIG->webSiteDomain.'/event/'.$event->getSlugForUrl() : 
+					'http://'.$siteSlug.".".$CONFIG->webSiteDomain.'/event/'.$event->getSlugForUrl() ; 
 			$txt .= $this->getIcalLine('URL',$url);
 			$description = '';
 			foreach($this->extraHeaders as $extraHeader) {
@@ -88,18 +88,26 @@ class EventListICalBuilder extends BaseEventListBuilder  {
 			//if ($event->getUrl()) $descriptionHTML .= '<p>More info: <a href="'.$event->getUrl().'">'.$event->getUrl().'</a></p>';
 			$descriptionHTML .= '<p>More info: <a href="'.$url.'">'.$url.'</a></p>';
 			$descriptionHTML .= '<p style="font-style:italic;font-size:80%">Powered by <a href="'.$url.'">'.$CONFIG->siteTitle.'</a>';
-			if ($CONFIG->sponsor1Html && $CONFIG->sponsor1Link) {
+			if ($CONFIG->sponsor1Html && $CONFIG->sponsor1Link && $CONFIG->sponsor2Html && $CONFIG->sponsor2Link) {
+				$descriptionHTML .= ', Sponsored by <a href="'.$CONFIG->sponsor1Link.'">'.$CONFIG->sponsor1Html.'</a> and <a href="'.$CONFIG->sponsor2Link.'">'.$CONFIG->sponsor2Html.'</a>';
+			} else if ($CONFIG->sponsor1Html && $CONFIG->sponsor1Link) {
 				$descriptionHTML .= ', Sponsored by <a href="'.$CONFIG->sponsor1Link.'">'.$CONFIG->sponsor1Html.'</a>';
 			}
 			$descriptionHTML .= '</p>';
 			$descriptionHTML .= '</body></html>';
 			$txt .= $this->getIcalLine("X-ALT-DESC;FMTTYPE=text/html", $descriptionHTML);
 			
-			//$locationDetails = '';
-			//if ($event->getAddress()) $locationDetails .= $event->getAddress();
-			//if ($event->getPostcode()) $locationDetails .= " ". $event->getPostcode();
-			//if ($event->getLocation()) $locationDetails .= " ".$event->getLocation()->getTitle();
-			//$txt .= $this->getIcalLine('LOCATION',$locationDetails);
+			$locationDetails = array();
+			if ($event->getVenue() && $event->getVenue()->getTitle()) $locationDetails[] = $event->getVenue()->getTitle();
+			if ($event->getVenue() && $event->getVenue()->getAddress()) $locationDetails[] = $event->getVenue()->getAddress();
+			if ($event->getArea() && $event->getArea()->getTitle()) $locationDetails[] = $event->getArea()->getTitle();
+			if ($event->getVenue() && $event->getVenue()->getAddressCode()) $locationDetails[] = $event->getVenue()->getAddressCode();
+			if ($locationDetails) {
+				$txt .= $this->getIcalLine('LOCATION',implode(", ", $locationDetails));
+			}
+			if ($event->getVenue() && $event->getVenue()->getLat() && $event->getVenue()->getLng()) {
+				$txt .= $this->getIcalLine('GEO',$event->getVenue()->getLat().";".$event->getVenue()->getLng());
+			}
 		}
 		
 		$txt .= $this->getIcalLine('DTSTART',$event->getStartAt()->format("Ymd")."T".$event->getStartAt()->format("His")."Z");
@@ -110,3 +118,5 @@ class EventListICalBuilder extends BaseEventListBuilder  {
 	}
 
 }
+
+

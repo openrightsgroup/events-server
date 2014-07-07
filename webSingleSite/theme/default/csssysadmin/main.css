@@ -1,3 +1,126 @@
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
 body,
 html {
   padding: 0;
@@ -224,6 +347,17 @@ ul.history li.venue .created {
   font-style: italic;
   font-size: 0.8em;
 }
+ul.history li.event .fieldChanged .field,
+ul.history li.group .fieldChanged .field,
+ul.history li.venue .fieldChanged .field {
+  display: inline;
+  font-style: italic;
+}
+ul.history li.event .fieldChanged .value,
+ul.history li.group .fieldChanged .value,
+ul.history li.venue .fieldChanged .value {
+  display: inline;
+}
 ul.history li.event {
   background: #dcc;
 }
@@ -235,6 +369,104 @@ ul.history li.venue {
 }
 ul.history li.deleted {
   text-color: #999;
+}
+ul.usernotifications li.usernotificationunread,
+ul.usernotifications li.usernotificationread {
+  padding: 10px;
+  border-bottom: 2px solid #ccc;
+}
+ul.usernotifications li.usernotificationunread div.title,
+ul.usernotifications li.usernotificationread div.title {
+  display: block;
+  color: #333;
+}
+ul.usernotifications li.usernotificationunread div.timesince,
+ul.usernotifications li.usernotificationunread div.site,
+ul.usernotifications li.usernotificationunread div.id,
+ul.usernotifications li.usernotificationread div.timesince,
+ul.usernotifications li.usernotificationread div.site,
+ul.usernotifications li.usernotificationread div.id {
+  display: inline;
+  color: #999;
+  font-size: 0.8em;
+  padding: 5px 0;
+}
+ul.usernotifications li.usernotificationunread div.title {
+  font-size: 1.4em;
+}
+ul.usernotifications li.usernotificationunread div.title {
+  font-size: 1.1em;
+}
+ul.areasAdmin {
+  padding: 10px 5px 10px 20px;
+  font-weight: 200;
+}
+ul.areasAdmin li.area {
+  padding: 2px;
+}
+ul.areasAdmin li.area span.content {
+  font-size: 13pt;
+  background: url('/theme/default/img/areaBackground.png') no-repeat #0DA20D;
+}
+ul.areasAdmin li.area span.contentWithEvents {
+  font-size: 13pt;
+  background: url('/theme/default/img/areaBackground.png') no-repeat #0DA20D;
+}
+ul.areasAdmin li.area span.contentWithNoEvents {
+  font-size: 10pt;
+  background: url('/theme/default/img/areaBackground.png') no-repeat #0DA20D;
+}
+ul.areasAdmin li.area span.contentNew {
+  font-size: 10pt;
+  background: url('/theme/default/img/areaBackground.png') no-repeat #676767;
+}
+ul.areasAdmin li.area span.content,
+ul.areasAdmin li.area span.contentWithEvents,
+ul.areasAdmin li.area span.contentWithNoEvents,
+ul.areasAdmin li.area span.contentNew {
+  white-space: nowrap;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+  border-radius: 2px;
+  padding: 2px 2px 2px 20px;
+  color: white;
+}
+ul.areasAdmin li.area span.content a,
+ul.areasAdmin li.area span.contentWithEvents a,
+ul.areasAdmin li.area span.contentWithNoEvents a,
+ul.areasAdmin li.area span.contentNew a {
+  color: white;
+  text-decoration: none;
+}
+ul.breadcrumbs {
+  padding: 10px;
+  text-transform: lowercase;
+}
+ul.breadcrumbs li {
+  display: inline;
+  font-size: 0.8em;
+  padding: 5px 10px 5px 15px;
+  background: url('/theme/default/imgsysadmin/breadcrumbsDivider.png') left center no-repeat;
+}
+@media screen and (max-width: 800px) {
+  ul.breadcrumbs li {
+    display: block;
+  }
+}
+ul.breadcrumbs li a {
+  text-decoration: none;
+  color: black;
+}
+ul.breadcrumbs li a:hover {
+  text-decoration: underline;
+  color: black;
+}
+ul.breadcrumbs li.current a,
+ul.breadcrumbs li.current a:hover {
+  text-decoration: none;
+  color: #555;
 }
 #footer {
   padding: 10px 5px;

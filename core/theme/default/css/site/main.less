@@ -6,6 +6,7 @@
  * @author James Baster <james@jarofgreen.co.uk>
 */
 
+@import("../reset.less");
 @import("../mixins.less");
 @import("../vars.less");
 
@@ -37,6 +38,34 @@ body {
 	ul.menu {
 		padding:0;
 		margin: 0;
+		li#NotificationMenu {
+			img.notificationicon {
+				width: 16px;
+				height: 16px;
+			}
+			ul.submenu#NotificationSubMenu {
+				li {
+					padding: 5px;
+					border-bottom: 1px solid #ccc;
+					.title a {
+						display: block;
+						font-size: 10pt;
+						color: #999;
+						padding: 0;
+					}
+					.timesince, .site {
+						display: inline;
+						font-size: 8pt;
+						color: #999;
+						padding: 2px;
+					}
+				}
+				li.unread .title a {
+					font-size: 12pt;
+					color: #333;
+				}
+			}
+		}
 		li {
 			list-style-type: none;
 			display: inline-block;
@@ -231,6 +260,11 @@ form.styled {
 
 }
 
+#Map.leftColumnFullWidth {
+	width: 99%;
+	height: 300px;
+}
+
 h2 {
 	font-weight: bold;
 	font-size: 1.5em;
@@ -371,6 +405,62 @@ ul.curatedlists {
 }
 
 
+ul.tags {
+	li.tag {
+		border-bottom: 2px solid #E9E9E9;
+		.title {
+			font-size: 1.1em;
+			font-weight: bold;
+			padding: 2px 0;
+			a {
+				color: #333;
+				text-decoration: none;
+			}
+			a:hover {
+				color: black;
+				text-decoration: underline;
+			}
+		}
+		span.tagTitleWrapper {
+			font-size: 13pt;
+			background: url('/theme/default/img/tagBackground.png') no-repeat left center #4F4F4F;
+			white-space: nowrap;
+			.rounded-corners-right(2px);
+			padding: 2px 5px 2px 20px;
+			color: white;
+			a {
+				color: white;
+				text-decoration: none;
+			}
+		}
+	}
+}
+
+div.inlineTags {
+	ul.inlineTags {
+		display: inline;
+		padding: 20px 0;
+		font-weight: 200;
+		li.tag {
+			padding: 2px;
+			display: inline;
+			line-height: 1.8em;
+			span.content {
+				font-size: 13pt;
+				background: url('/theme/default/img/tagBackground.png') no-repeat left center #4F4F4F;
+				white-space: nowrap;
+				.rounded-corners-right(2px);
+				padding: 2px 5px 2px 20px;
+				color: white;
+				a {
+					color: white;
+					text-decoration: none;
+				}
+			}
+		}
+	}
+}
+
 table.data {
 	margin: 10px 20px;
 	tr th {
@@ -416,7 +506,7 @@ table.data {
 }
 
 ul.history {
-	li.event, li.group, li.venue {
+	li.event, li.group, li.venue, li.tag, li.importurl {
 		padding: 5px;
 		margin: 5px 0 5px 0;
 		.rounded-corners (5px);
@@ -529,6 +619,12 @@ ul.history {
 	}
 	li.venue {
 		background: #8ac4bc;
+	}
+	li.tag {
+		background: #eefcbc;
+	}
+	li.importurl {
+		background: #bcdffc;
 	}
 	li.deleted {
 		text-color: #999;
@@ -662,7 +758,7 @@ ul.newRecuringEvents li.newRecuringEvent {
 	}
 }
 
-#userCanPushToChildAreaWrapper {
+#userCanPushToChildAreaWrapper, .isGroupRunningOutOfFutureEventsWarning {
 	clear: both;
 	margin: 10px;
 	max-width: 600px;

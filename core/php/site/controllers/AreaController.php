@@ -76,6 +76,8 @@ class AreaController {
 		$this->parameters['eventListFilterParams'] = new EventFilterParams();
 		$this->parameters['eventListFilterParams']->set($_GET);
 		$this->parameters['eventListFilterParams']->getEventRepositoryBuilder()->setArea($this->parameters['area']);
+		$this->parameters['eventListFilterParams']->getEventRepositoryBuilder()->setIncludeAreaInformation(true);
+		$this->parameters['eventListFilterParams']->getEventRepositoryBuilder()->setIncludeVenueInformation(true);
 		if (userGetCurrent()) {
 			$this->parameters['eventListFilterParams']->getEventRepositoryBuilder()->setUserAccount(userGetCurrent(), true);
 		}
@@ -205,9 +207,7 @@ class AreaController {
 	}
 	
 	
-	function infoJson($slug, Request $request, Application $app) {
-		global $CONFIG;
-		
+	function infoJson($slug, Request $request, Application $app) {		
 		if (!$this->build($slug, $request, $app)) {
 			$app->abort(404, "Country does not exist.");
 		}	
@@ -254,7 +254,7 @@ class AreaController {
 		$response = new Response(json_encode($data));
 		$response->headers->set('Content-Type', 'application/json');
 		$response->setPublic();
-		$response->setMaxAge($CONFIG->cacheFeedsInSeconds);
+		$response->setMaxAge($app['config']->cacheFeedsInSeconds);
 		return $response;
 	
 	}

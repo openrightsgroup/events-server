@@ -1,0 +1,64 @@
+
+{#
+ # @package Core
+ # @link http://ican.openacalendar.org/ OpenACalendar Open Source Software - Website
+ # @license http://ican.openacalendar.org/license.html 3-clause BSD
+ # @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
+ # @author James Baster <james@jarofgreen.co.uk>
+ #}
+{% extends 'site/admintag/page2col.html.twig' %}
+
+{% block pageTitle %}{{ tag.title }} - {% endblock %} 
+
+
+{% block htmlHeader %}
+{% endblock %}
+
+{% block tabDetails %}currentTab{% endblock %}
+
+
+
+{% block actions %}
+	{% if currentSite.isFeatureTag %}
+		{% if not tag.isDeleted %}
+			<li class="action">
+				<a href="/admin/tag/{{ tag.slugForUrl }}/edit"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> edit</a>
+			</li>
+			<li class="action">
+				<a href="/admin/tag/{{ tag.slugForUrl }}/delete"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> delete</a>
+			</li>
+		{% else %}
+			<li class="action">
+				<a href="/admin/tag/{{ tag.slugForUrl }}/undelete"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> undelete</a>
+			</li>
+		{% endif %}
+	{% endif %}
+{% endblock %}
+
+
+
+
+{% block innerContentLeft %}
+
+	<p>{{ tag.description | nl2br  | linkify }}</p>
+
+
+{% endblock %}
+
+
+{% block innerContentRight %}
+
+		{% include '/site/eventListFilterParams.html.twig' %}
+
+		<ul class="events">
+			{% for event in events %}
+				{% include '/site/common/eventListing.html.twig' with {'event':event, 'showCurrentUserOptions':true, 'showVenueAndArea':true}  %}
+			{% else %}
+				<li>
+					No events found.
+				</li>					
+			{% endfor %}
+		</ul>
+
+{% endblock %}
+

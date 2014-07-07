@@ -5,6 +5,7 @@ namespace repositories\builders;
 use models\SiteModel;
 use models\EventModel;
 use models\GroupModel;
+use models\TagModel;
 use models\VenueModel;
 use models\UserAccountModel;
 use models\CountryModel;
@@ -35,6 +36,12 @@ class EventRepositoryBuilder extends BaseRepositoryBuilder {
 		$this->orderDirection = ($newestFirst ? " DESC " : " ASC ");
 	}
 
+	protected $freeTextSearch;
+
+	public function setFreeTextsearch($freeTextSearch) {
+		$this->freeTextSearch = $freeTextSearch;
+	}
+	
 
 
 	/** @var UserAccountModel **/
@@ -115,6 +122,14 @@ class EventRepositoryBuilder extends BaseRepositoryBuilder {
 	}
 	
 	
+	/** @var TagModel **/
+	protected $tag;
+	
+	public function setTag(TagModel $tag) {
+		$this->tag = $tag;
+	}
+	
+	
 	/** @var \DateTime **/
 	protected $after;
 	
@@ -136,6 +151,14 @@ class EventRepositoryBuilder extends BaseRepositoryBuilder {
 		return $this;
 	}
 
+	/** @var \DateTime **/
+	protected $startAfter;
+	
+	public function setStartAfter(\DateTime $a) {
+		$this->startAfter = $a;
+		return $this;
+	}
+	
 	
 	/** @var \DateTime **/
 	protected $start;
@@ -188,6 +211,19 @@ class EventRepositoryBuilder extends BaseRepositoryBuilder {
 	public function setIncludeImported($value) {
 		$this->include_imported = $value;
 	}
+	
+	protected $event_recur_set_id;
+	
+	public function setInSameRecurEventSet(EventModel $event) {
+		$this->event_recur_set_id = $event->getEventRecurSetId();
+	}
+	
+	protected $includeEventsFromClosedSites = false;
+	
+	public function setIncludeEventsFromClosedSites($includeEventsFromClosedSites) {
+		$this->includeEventsFromClosedSites = $includeEventsFromClosedSites;
+	}
+
 	
 	protected function build() {
 		global $DB;
@@ -251,6 +287,9 @@ class EventRepositoryBuilder extends BaseRepositoryBuilder {
 		if (!$this->site && !$this->group) {
 			$this->joins[] = " JOIN site_information ON event_information.site_id = site_information.id ";
 			$this->select[] = " site_information.slug AS site_slug ";
+			if (!$this->includeEventsFromClosedSites) {
+				$this->where[] = " site_information.is_closed_by_sys_admin = '0' ";
+			}
 		}
 		
 		if ($this->curatedList) {
@@ -265,6 +304,9 @@ class EventRepositoryBuilder extends BaseRepositoryBuilder {
 		} else if ($this->after) {
 			$this->where[] = ' event_information.end_at > :after';
 			$this->params['after'] = $this->after->format("Y-m-d H:i:s");
+		} else if ($this->startAfter) {
+			$this->where[] = ' event_information.start_at > :startAfter';
+			$this->params['startAfter'] = $this->startAfter->format("Y-m-d H:i:s");
 		}
 		
 		if ($this->start) {
@@ -340,6 +382,26 @@ class EventRepositoryBuilder extends BaseRepositoryBuilder {
 		
 		if ($this->venueVirtualOnly) {
 			$this->where[] = " event_information.is_virtual = '1' ";
+		}
+		
+		if ($this->event_recur_set_id) {
+			$this->where[] =  " event_information.event_recur_set_id = :event_recur_set_id ";
+			$this->params['event_recur_set_id'] = $this->event_recur_set_id;
+		}	
+		
+		if ($this->tag) {
+			$this->joins[] = "  JOIN event_has_tag ON event_has_tag.event_id = event_information.id AND  event_has_tag.tag_id = :tag_id AND event_has_tag.removed_at IS NULL";
+			$this->params['tag_id'] = $this->tag->getId();	
+		}
+		
+		if ($this->freeTextSearch) {
+			$this->where[] =  '(CASE WHEN event_information.summary IS NULL THEN \'\' ELSE event_information.summary END)   || '.
+					'\' \' || '.
+					'(CASE WHEN event_information.description IS NULL THEN \'\' ELSE event_information.description END) || '.
+					'\' \' || '.
+					'(CASE WHEN group_information.title IS NULL THEN \'\' ELSE group_information.title END)'.
+					' ILIKE :free_text_search ';
+			$this->params['free_text_search'] = "%".strtolower($this->freeTextSearch)."%";
 		}
 	}
 	

@@ -21,34 +21,20 @@ if (!$parseDomain->isCoveredByCookies()) {
 	die("REDIRECT!");
 }
 
+
 ///////////////////////// Sessions
 
 /** @var WebSession **/
 $WEBSESSION = new WebSession();
+$app['websession'] = $WEBSESSION;
 /** @var FlashMessages **/
 $FLASHMESSAGES = new FlashMessages($WEBSESSION);
+$app['flashmessages'] = $FLASHMESSAGES;
+/** @var UserAgent **/
+$USERAGENT = new \UserAgent();
+$app['userAgent'] = $USERAGENT;
 
-///////////////////////// App
 
-$app = new Silex\Application(); 
-$app['debug'] = $CONFIG->isDebug;
-foreach($CONFIG->extensions as $extensionName) {
-	$className = "Extension".$extensionName;
-	require APP_ROOT_DIR.'/extension/'.$extensionName.'/extension.php';
-	$app['extension'.strtolower($extensionName)] = new $className($app);
-}
-
-///////////////////////// LOGGING
-if ($CONFIG->logFile) {
-	$app->register(new Silex\Provider\MonologServiceProvider(), array(
-		'monolog.logfile' => $CONFIG->logFile,
-		'monolog.name'=>$CONFIG->siteTitle,
-		'monolog.level'=>  \Symfony\Bridge\Monolog\Logger::ERROR,
-	));
-	if ($CONFIG->logToStdError) {
-		$app['monolog']->pushHandler(new Monolog\Handler\StreamHandler('php://stderr', Monolog\Logger::ERROR));
-	}
-}
 
 
 ///////////////////////// TWIG
@@ -80,6 +66,7 @@ $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
     $twig->addExtension(new twig\extensions\WordWrapExtension($app));
     $twig->addExtension(new twig\extensions\TruncateExtension($app));
     $twig->addExtension(new twig\extensions\LinkInfoExtension($app));
+    $twig->addExtension(new twig\extensions\TimeSinceInWordsExtension($app));
 	$twig->addGlobal('config', $CONFIG);
 	$twig->addGlobal('COPYRIGHT_YEARS', COPYRIGHT_YEARS);
     return $twig;
@@ -110,7 +97,6 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
 
 ///////////////////////// Users
 
-$app['debug'] = $CONFIG->isDebug;
 function userLogIn(UserAccountModel $user) {
 	global $WEBSESSION;
 	if (!$user->getIsClosedBySysAdmin()) {
@@ -121,6 +107,7 @@ function userLogIn(UserAccountModel $user) {
 function userLogOut() {
 	global $USER_CURRENT, $USER_CURRENT_LOADED, $CONFIG, $WEBSESSION;
 	$WEBSESSION->set('userID',null);
+	$WEBSESSION->set('sysAdminLastActive',null);
 	if (isset($_COOKIE['userID']) && isset($_COOKIE['userKey'])) {
 		setcookie("userID","",null,'/',$CONFIG->webCommonSessionDomain,false,true);
 		setcookie("userKey","",null,'/',$CONFIG->webCommonSessionDomain,false,true);

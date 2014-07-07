@@ -7,11 +7,16 @@ use models\SiteModel;
 use models\EventModel;
 use models\GroupModel;
 use models\VenueModel;
+use models\TagModel;
+use models\ImportURLModel;
 use models\UserAccountModel;
 use models\EventHistoryModel;
 use models\GroupHistoryModel;
 use models\VenueHistoryModel;
 use models\AreaHistoryModel;
+use models\TagHistoryModel;
+use models\ImportURLHistoryModel;
+use models\API2ApplicationModel;
 
 /**
  *
@@ -23,11 +28,14 @@ use models\AreaHistoryModel;
  */
 class HistoryRepositoryBuilder {
 
+	protected $includeTagHistory = true;
 	protected $includeEventHistory = true;
 	protected $includeGroupHistory = true;
 	protected $includeVenueHistory = true;
 	protected $includeAreaHistory = true;
-	
+	protected $includeImportURLHistory = true;
+
+
 	public function getIncludeEventHistory() {
 		return $this->includeEventHistory;
 	}
@@ -42,6 +50,14 @@ class HistoryRepositoryBuilder {
 
 	public function setIncludeGroupHistory($includeGroupHistory) {
 		$this->includeGroupHistory = $includeGroupHistory;
+	}
+
+	public function getIncludeTagHistory() {
+		return $this->includeTagHistory;
+	}
+
+	public function setIncludeTagHistory($includeTagHistory) {
+		$this->includeTagHistory = $includeTagHistory;
 	}
 
 	public function getIncludeVenueHistory() {
@@ -60,7 +76,15 @@ class HistoryRepositoryBuilder {
 		$this->includeAreaHistory = $includeAreaHistory;
 	}
 
-		
+	public function getIncludeImportURLHistory() {
+		return $this->includeImportURLHistory;
+	}
+
+	public function setIncludeImportURLHistory($includeImportURLHistory) {
+		$this->includeImportURLHistory = $includeImportURLHistory;
+	}
+
+			
 	protected $since;
 	
 	public function setSince($since) {
@@ -76,6 +100,8 @@ class HistoryRepositoryBuilder {
 		$this->includeGroupHistory = true;
 		$this->includeVenueHistory = true;
 		$this->includeAreaHistory = true;
+		$this->includeTagHistory = true;
+		$this->includeImportURLHistory = true;
 	}
 
 
@@ -88,6 +114,8 @@ class HistoryRepositoryBuilder {
 		$this->includeGroupHistory = true;
 		$this->includeVenueHistory = false;
 		$this->includeAreaHistory = false;
+		$this->includeTagHistory = false;
+		$this->includeImportURLHistory = true;
 	}
 
 	/** @var EventModel **/
@@ -99,6 +127,8 @@ class HistoryRepositoryBuilder {
 		$this->includeGroupHistory = true;
 		$this->includeVenueHistory = true;
 		$this->includeAreaHistory = false;
+		$this->includeTagHistory = false;
+		$this->includeImportURLHistory = false;
 	}
 
 	/** @var VenueModel **/
@@ -110,7 +140,23 @@ class HistoryRepositoryBuilder {
 		$this->includeGroupHistory = false;
 		$this->includeVenueHistory = true;
 		$this->includeAreaHistory = false;
+		$this->includeTagHistory = false;
+		$this->includeImportURLHistory = false;
 	}
+	
+	/** @var TagModel **/
+	protected $tag;
+	
+	public function setTag(TagModel $tag) {
+		$this->tag = $tag;
+		$this->includeEventHistory = false;
+		$this->includeGroupHistory = false;
+		$this->includeVenueHistory = false;
+		$this->includeAreaHistory = false;
+		$this->includeTagHistory = true;
+		$this->includeImportURLHistory = false;
+	}
+	
 	
 	protected $venueVirtualOnly = false;
 	
@@ -122,6 +168,8 @@ class HistoryRepositoryBuilder {
 			$this->includeGroupHistory = false;
 			$this->includeVenueHistory = false;
 			$this->includeAreaHistory = false;
+			$this->includeTagHistory = false;
+			$this->includeImportURLHistory = false;
 		}
 	}
 	
@@ -132,7 +180,16 @@ class HistoryRepositoryBuilder {
 		$this->notUser = $notUser;
 	}
 	
+	/** @var API2ApplicationModel **/
+	protected $api2app;
 	
+	public function setAPI2Application(API2ApplicationModel $api2app) {
+		$this->api2app = $api2app;
+	}
+
+		
+
+
 	protected $limit = 50;
 	
 	public function fetchAll() {
@@ -179,6 +236,11 @@ class HistoryRepositoryBuilder {
 			if ($this->notUser) {
 				$where[] = 'event_history.user_account_id != :userid ';
 				$params['userid'] = $this->notUser->getId();
+			}
+			
+			if ($this->api2app) {
+				$where[] = 'event_history.api2_application_id  = :api2app';
+				$params['api2app'] = $this->api2app->getId();
 			}
 			
 			if ($this->venueVirtualOnly) {
@@ -238,6 +300,11 @@ class HistoryRepositoryBuilder {
 				$params['userid'] = $this->notUser->getId();
 			}
 			
+			if ($this->api2app) {
+				$where[] = 'group_history.api2_application_id  = :api2app';
+				$params['api2app'] = $this->api2app->getId();
+			}
+			
 			$sql = "SELECT group_history.*, group_information.slug AS group_slug, user_account_information.username AS user_account_username FROM group_history ".
 					" LEFT JOIN user_account_information ON user_account_information.id = group_history.user_account_id ".
 					" LEFT JOIN group_information ON group_information.id = group_history.group_id ".
@@ -286,6 +353,11 @@ class HistoryRepositoryBuilder {
 				$params['userid'] = $this->notUser->getId();
 			}
 			
+			if ($this->api2app) {
+				$where[] = 'venue_history.api2_application_id  = :api2app';
+				$params['api2app'] = $this->api2app->getId();
+			}
+			
 			$sql = "SELECT venue_history.*, venue_information.slug AS venue_slug, user_account_information.username AS user_account_username FROM venue_history ".
 					" LEFT JOIN user_account_information ON user_account_information.id = venue_history.user_account_id ".
 					" LEFT JOIN venue_information ON venue_information.id = venue_history.venue_id ".
@@ -327,6 +399,11 @@ class HistoryRepositoryBuilder {
 				$params['userid'] = $this->notUser->getId();
 			}
 			
+			if ($this->api2app) {
+				$where[] = 'area_history.api2_application_id  = :api2app';
+				$params['api2app'] = $this->api2app->getId();
+			}
+			
 			$sql = "SELECT area_history.*, area_information.slug AS area_slug, user_account_information.username AS user_account_username FROM area_history ".
 					" LEFT JOIN user_account_information ON user_account_information.id = area_history.user_account_id ".
 					" LEFT JOIN area_information ON area_information.id = area_history.area_id ".
@@ -345,6 +422,114 @@ class HistoryRepositoryBuilder {
 			}
 			
 		}
+		
+		/////////////////////////// Tags History
+
+		if ($this->includeTagHistory) {
+			$where = array();
+			$params = array();
+			
+
+			if ($this->site) {
+				$where[] = 'tag_information.site_id =:site';
+				$params['site'] = $this->site->getId();
+			}
+			
+			if ($this->since) {
+				$where[] = ' tag_history.created_at >= :since ';
+				$params['since'] = $this->since->format("Y-m-d H:i:s");
+			}
+			
+			if ($this->notUser) {
+				$where[] = 'tag_history.user_account_id != :userid ';
+				$params['userid'] = $this->notUser->getId();
+			}
+			
+			if ($this->api2app) {
+				$where[] = 'tag_history.api2_application_id  = :api2app';
+				$params['api2app'] = $this->api2app->getId();
+			}
+			
+			$sql = "SELECT tag_history.*, tag_information.slug AS tag_slug, user_account_information.username AS user_account_username FROM tag_history ".
+					" LEFT JOIN user_account_information ON user_account_information.id = tag_history.user_account_id ".
+					" LEFT JOIN tag_information ON tag_information.id = tag_history.tag_id ".
+					($where ? " WHERE ".implode(" AND ", $where) : "").
+					" ORDER BY tag_history.created_at DESC LIMIT ".$this->limit;
+
+			//var_dump($sql); var_dump($params);
+			
+			$stat = $DB->prepare($sql);
+			$stat->execute($params);
+			
+			while($data = $stat->fetch()) {
+				$tagHistory = new TagHistoryModel();
+				$tagHistory->setFromDataBaseRow($data);
+				$results[] = $tagHistory;
+			}
+			
+		}
+		
+		
+		
+		/////////////////////////// Import URL History
+
+		if ($this->includeImportURLHistory) {
+			$where = array();
+			$params = array();
+			
+
+			if ($this->site) {
+				$where[] = 'import_url_information.site_id =:site';
+				$params['site'] = $this->site->getId();
+			}
+			
+			
+
+			if ($this->group) {
+				$where[] = 'import_url_information.group_id =:group';
+				$params['group'] = $this->group->getId();
+			}
+			
+			
+			
+			if ($this->since) {
+				$where[] = ' import_url_history.created_at >= :since ';
+				$params['since'] = $this->since->format("Y-m-d H:i:s");
+			}
+			
+			if ($this->notUser) {
+				$where[] = 'import_url_history.user_account_id != :userid ';
+				$params['userid'] = $this->notUser->getId();
+			}
+			
+			if ($this->api2app) {
+				$where[] = 'import_url_history.api2_application_id  = :api2app';
+				$params['api2app'] = $this->api2app->getId();
+			}
+			
+			$sql = "SELECT import_url_history.*, import_url_information.slug AS import_url_slug, ".
+					"user_account_information.username AS user_account_username ".
+					" FROM import_url_history ".
+					" LEFT JOIN user_account_information ON user_account_information.id = import_url_history.user_account_id ".
+					" LEFT JOIN import_url_information ON import_url_information.id = import_url_history.import_url_id ".
+					($where ? " WHERE ".implode(" AND ", $where) : "").
+					" ORDER BY import_url_history.created_at DESC LIMIT ".$this->limit;
+
+			//var_dump($sql); var_dump($params);
+			
+			$stat = $DB->prepare($sql);
+			$stat->execute($params);
+			
+			while($data = $stat->fetch()) {
+				$tagHistory = new ImportURLHistoryModel();
+				$tagHistory->setFromDataBaseRow($data);
+				$results[] = $tagHistory;
+			}
+			
+		}
+		
+		
+		
 		
 		////////////////////// Finally sort & truncate
 

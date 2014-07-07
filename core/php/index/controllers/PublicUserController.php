@@ -10,6 +10,8 @@ use repositories\UserAccountRepository;
 use Symfony\Component\Form\FormError;
 use repositories\builders\EventRepositoryBuilder;
 use api1exportbuilders\EventListICalBuilder;
+use api1exportbuilders\EventListJSONBuilder;
+use api1exportbuilders\EventListJSONPBuilder;
 
 /**
  *
@@ -74,7 +76,33 @@ class PublicUserController {
 		return $ical->getResponse();
 		
 	}
-
 	
+	function json($username, Request $request,Application $app) {
+		
+		if (!$this->build($username, $request, $app)) {
+			$app->abort(404, "User does not exist.");
+		}
+		
+		$json = new EventListJSONBuilder(null, $app['currentTimeZone']);
+		$json->getEventRepositoryBuilder()->setUserAccount($this->parameters['user'], false, false, true, false);
+		$json->build();
+		return $json->getResponse();
+			
+	}
+	
+	function jsonp($username, Request $request,Application $app) {
+		
+		if (!$this->build($username, $request, $app)) {
+			$app->abort(404, "User does not exist.");
+		}
+		
+		$jsonp = new EventListJSONPBuilder(null, $app['currentTimeZone']);
+		$jsonp->getEventRepositoryBuilder()->setUserAccount($this->parameters['user'], false, false, true, false);
+		$jsonp->build();
+		if (isset($_GET['callback'])) $jsonp->setCallBackFunction($_GET['callback']);
+		return $jsonp->getResponse();
+			
+	}
 	
 }
+

@@ -25,16 +25,14 @@ use repositories\SiteQuotaRepository;
  */
 class IndexController {
 	
-	function index(Application $app) {
-		global $WEBSESSION, $CONFIG;
-		
+	function index(Application $app) {		
 		$sites = array();
 		$repo  = new SiteRepository();
 		if (isset($_COOKIE['sitesSeen'])) {
 			foreach(explode(",",$_COOKIE['sitesSeen']) as $siteID) {
 				if (intval($siteID) > 0) {
 					$site = $repo->loadById($siteID);
-					if ($site && !$site->getIsClosedBySysAdmin() && $site->getSlug() != $CONFIG->siteSlugDemoSite) {
+					if ($site && !$site->getIsClosedBySysAdmin() && $site->getSlug() != $app['config']->siteSlugDemoSite) {
 						$sites[$site->getId()] = $site;
 					}
 				}
@@ -60,15 +58,12 @@ class IndexController {
 		
 	}
 	
-	function myTimeZone(Application $app) {
-		global $CONFIG;
-		
+	function myTimeZone(Application $app) {		
 		return $app['twig']->render('index/index/myTimeZone.html.twig', array(
 			));
 	}
 	
 	function create(Request $request, Application $app) {
-		global $CONFIG;
 		$siteRepository = new SiteRepository();
 				
 		$form = $app['form.factory']->create(new CreateForm());
@@ -101,13 +96,14 @@ class IndexController {
 					$site->setIsAllUsersEditors(false);
 					$site->setIsRequestAccessAllowed(true);
 				}
-				$site->setIsFeatureCuratedList($CONFIG->newSiteHasFeatureCuratedList);
-				$site->setIsFeatureImporter($CONFIG->newSiteHasFeatureImporter);
-				$site->setIsFeatureMap($CONFIG->newSiteHasFeatureMap);
-				$site->setIsFeatureVirtualEvents($CONFIG->newSiteHasFeatureVirtualEvents);
-				$site->setIsFeaturePhysicalEvents($CONFIG->newSiteHasFeaturePhysicalEvents);
-				$site->setIsFeatureGroup($CONFIG->newSiteHasFeatureGroup);
-				$site->setPromptEmailsDaysInAdvance($CONFIG->newSitePromptEmailsDaysInAdvance);
+				$site->setIsFeatureCuratedList($app['config']->newSiteHasFeatureCuratedList);
+				$site->setIsFeatureImporter($app['config']->newSiteHasFeatureImporter);
+				$site->setIsFeatureMap($app['config']->newSiteHasFeatureMap);
+				$site->setIsFeatureVirtualEvents($app['config']->newSiteHasFeatureVirtualEvents);
+				$site->setIsFeaturePhysicalEvents($app['config']->newSiteHasFeaturePhysicalEvents);
+				$site->setIsFeatureGroup($app['config']->newSiteHasFeatureGroup);
+				$site->setPromptEmailsDaysInAdvance($app['config']->newSitePromptEmailsDaysInAdvance);
+				$site->setIsFeatureTag($app['config']->newSiteHasFeatureTag);
 				
 				$countryRepository = new CountryRepository();
 				$siteQuotaRepository = new SiteQuotaRepository();
@@ -116,10 +112,10 @@ class IndexController {
 							$site, 
 							userGetCurrent(), 
 							array( $countryRepository->loadByTwoCharCode("GB") ), 
-							$siteQuotaRepository->loadByCode($CONFIG->newSiteHasQuotaCode)
+							$siteQuotaRepository->loadByCode($app['config']->newSiteHasQuotaCode)
 						);
 				
-				return $app->redirect("http://".$site->getSlug().".".$CONFIG->webSiteDomain);
+				return $app->redirect("http://".$site->getSlug().".".$app['config']->webSiteDomain);
 			}
 		}
 		
@@ -130,9 +126,7 @@ class IndexController {
 		
 	}
 	
-	function contact(Application $app, Request $request) {
-		global $FLASHMESSAGES;
-		
+	function contact(Application $app, Request $request) {		
 		$form = $app['form.factory']->create(new ContactForm());
 		
 		if ('POST' == $request->getMethod()) {
@@ -149,7 +143,7 @@ class IndexController {
 				}
 				$contact->setIp($_SERVER['REMOTE_ADDR']);
 				$contact->setBrowser($_SERVER['HTTP_USER_AGENT']);			
-				if (isset($_POST['url']) && $_POST['url']) {
+				if ($request->request->get('url')) {
 					$contact->setIsSpamHoneypotFieldDetected(true);
 				}
 
@@ -160,7 +154,7 @@ class IndexController {
 					$contact->sendEmailToSupport($app, userGetCurrent());
 				}
 
-				$FLASHMESSAGES->addMessage('Your message has been sent');
+				$app['flashmessages']->addMessage('Your message has been sent');
 				return $app->redirect('/contact');		
 			}
 		}

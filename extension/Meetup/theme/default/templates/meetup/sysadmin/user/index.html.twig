@@ -1,0 +1,45 @@
+{#
+ # @package org.openacalendar.meetup
+ # @link http://ican.openacalendar.org/ OpenACalendar Open Source Software - Website
+ # @license http://ican.openacalendar.org/license.html 3-clause BSD
+ # @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
+ # @author James Baster <james@jarofgreen.co.uk>
+ #}
+{% extends 'sysadmin/page.html.twig' %}
+
+{% block content %}
+
+	<h2>Current Details</h2>
+
+	<table class="oneData">
+		<tr>
+			<th>App Key</th>
+			<td>{{ app_key }}</td>
+		</tr>
+	</table>
+
+	<h2>New Details</h2>
+	
+	<form action="#" method="post"  class="styled">
+		<input type="hidden" name="CSFRToken" value="{{ getCSFRToken() }}">
+		<input type="hidden" name="submitted" value="appdetails">
+		
+		<div class="rowWrapper">
+			<label>
+			<div class="labelWrapper">New App Key</div>
+			<div class="widgetWrapperPlacementOnly smallInputs">
+				<input type="text" name="app_key">
+			</div>
+			</label>
+			<div class="after"></div>
+		</div>
+		
+		
+		<input type="submit"  value="Save" />	
+		
+		
+	</form>
+
+{% endblock %}
+
+
