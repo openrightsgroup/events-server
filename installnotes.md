@@ -187,9 +187,8 @@ Edit the file /orgevents-web/update
 ````
 git pull
 cp -R /orgevents-latest/vendor/* /orgevents-web/vendor/
-rm /orgevents-web/cache/templates.web/*/*/*.php
+php /orgevents-web/core/cli/clearCache.php
 chown -R www-data:www-data /orgevents-web/cache/templates.web/
-rm /orgevents-web/cache/templates.cli/*/*/*.php
 cat config.live.public.php > config.new.php
 cat config.live.private.php >> config.new.php
 diff config.new.php config.php
