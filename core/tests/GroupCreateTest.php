@@ -6,7 +6,7 @@ use models\GroupModel;
 use repositories\UserAccountRepository;
 use repositories\SiteRepository;
 use repositories\GroupRepository;
-
+use repositories\builders\GroupRepositoryBuilder;
 
 /**
  *
@@ -46,6 +46,15 @@ class GroupCreateTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->checkGroupInTest1($groupRepo->loadById($group->getId()));
 		$this->checkGroupInTest1($groupRepo->loadBySlug($site, $group->getSlug()));
+		
+		$grb = new GroupRepositoryBuilder();
+		$grb->setFreeTextsearch('test');
+		$this->assertEquals(1, count($grb->fetchAll()));	
+		
+		$grb = new GroupRepositoryBuilder();
+		$grb->setFreeTextsearch('cats');
+		$this->assertEquals(0, count($grb->fetchAll()));	
+
 	}
 	
 	protected function checkGroupInTest1(GroupModel $group) {

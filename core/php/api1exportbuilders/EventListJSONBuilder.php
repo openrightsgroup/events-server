@@ -35,18 +35,11 @@ class EventListJSONBuilder extends BaseEventListBuilder {
 			'data'=>$this->events , 
 			'localtimezone'=>$this->localTimeZone->getName(),
 		));
-		if ($CONFIG->sponsor1Text && $CONFIG->sponsor1Html && $CONFIG->sponsor1Link) {
-			$out['sponsorsHTML'] = '<a href="'.$CONFIG->sponsor1Link.'">'.$CONFIG->sponsor1Html.'</a>';
-			$out['sponsorsText'] = $CONFIG->sponsor1Text.' '.$CONFIG->sponsor1Link;
-		} else if ($CONFIG->sponsor1MightExist) {
-			$out['sponsorsHTML'] = '';
-			$out['sponsorsText'] = '';			
-		}
 		return json_encode($out);
 	}
 	
-	public function addEvent(EventModel $event, $groups = array(), VenueModel $venue = null, 
-			AreaModel $area = null, CountryModel $country = null) {
+	public function addEvent(EventModel $event, $groups = array(), VenueModel $venue = null,
+							 AreaModel $area = null, CountryModel $country = null, $eventMedias = array()) {
 		global $CONFIG;
 		
 		$out = array(
@@ -150,7 +143,26 @@ class EventListJSONBuilder extends BaseEventListBuilder {
 				'title'=>$country->getTitle(),
 			);
 		}
-		
+
+		if (is_array($eventMedias)) {
+			$out['medias'] = array();
+			$siteurl = $CONFIG->isSingleSiteMode ?
+				'http://'.$CONFIG->webSiteDomain :
+				'http://'.($this->site?$this->site->getSlug():$event->getSiteSlug()).".".$CONFIG->webSiteDomain;
+			foreach($eventMedias as $eventMedia) {
+				$out['medias'][] = array(
+					'slug'=>$eventMedia->getSlug(),
+					'title'=>$eventMedia->getTitle(),
+					'sourceUrl'=>$eventMedia->getSourceUrl(),
+					'sourcetext'=>$eventMedia->getSourceText(),
+					'picture'=>array(
+						'fullURL'=>$siteurl.'/media/'.$eventMedia->getSlug().'/full',
+						'normalURL'=>$siteurl.'/media/'.$eventMedia->getSlug().'/normal',
+					)
+				);
+			}
+		}
+
 		$this->events[] = $out;
 	}
 	

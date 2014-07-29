@@ -21,18 +21,55 @@
 {% block actions %}
 	{% if currentUserCanEditSite %}
 		{% if not event.isDeleted %}
-			<li class="action"><a href="/event/{{ event.slugForUrl }}/edit"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> edit</a></li>
+			{%  if currentSite.isFeaturePhysicalEvents or currentSite.isFeatureTag or currentSite.isFeatureGroup %}
+				<li class="actionWithSubMenu">
+					<a href="/event/{{ event.slugForUrl }}/edit"><div class="iconPencilSmall"></div> edit</a>
+					<ul class="submenu">
+						<li><a href="/event/{{ event.slugForURL }}/edit/details">Edit Details</a></li>
+						{% if currentSite.isFeaturePhysicalEvents %}
+							<li><a href="/event/{{ event.slugForUrl }}/edit/venue">Edit Venue</a></li>
+						{% endif %}
+						{% if currentSite.isFeatureTag %}
+							<li><a href="/event/{{ event.slugForUrl }}/edit/tags">Edit Tags</a></li>
+						{% endif %}
+						{% if currentSite.isFeatureGroup %}
+							<li><a href="/event/{{ event.slugForUrl }}/edit/groups">Edit Groups</a></li>
+						{% endif %}
+					</ul>
+				</li>
+			{%  else %}
+				<li class="action">
+					<a href="/event/{{ event.slugForUrl }}/edit/details"><div class="iconPencilSmall"></div> edit</a>
+				</li>
+			{% endif %}
+			{% if config.isFileStore %}
+				<li class="action">
+					<a href="/event/{{ event.slugForUrl }}/media"><div class="iconFileImageOSmall"></div> media</a>
+				</li>
+			{% endif %}
 		{% endif %}
 		{% if not event.isImported %}
 			{% if not event.isDeleted %}
 				{% if group is not null or currentSite.isFeatureGroup %}
-					<li class="action"><a href="/event/{{ event.slugForUrl }}/recur"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> recur</a></li>
+					<li class="action"><a href="/event/{{ event.slugForUrl }}/recur"><div class="iconCircleONotchSmall"></div> recur</a></li>
 				{% endif %}
-				<li class="action"><a href="/event/{{ event.slugForUrl }}/delete"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> delete</a></li>
+				<li class="action"><a href="/event/{{ event.slugForUrl }}/delete"><div class="iconTrashOSmall"></div> delete</a></li>
 			{% else %}
-				<li class="action"><a href="/event/{{ event.slugForUrl }}/undelete"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> undelete</a></li>
+				<li class="action"><a href="/event/{{ event.slugForUrl }}/undelete"><div class="iconTrashOSmall"></div> undelete</a></li>
 			{% endif %}
 		{% endif %}
+	{% endif %}
+	<li class="action">
+		<a href="/api1/event/{{ event.slug }}/info.ical" onclick="showExportPopup(); return false;">
+			<div class="iconDownloadSmall"></div> export
+		</a>
+	</li>
+	{% if currentSite.getIsWebRobotsAllowed %}
+		<li class="action">
+			<a href="#" onclick="showSharePopup(); return false;">
+				<div class="iconShareSmall"></div>  share
+			</a>
+		</li>
 	{% endif %}
 {% endblock %}
 
@@ -86,7 +123,16 @@
 		{% if event.ticketUrl %}
 			<p class="description">Get your tickets at <a href="{{ event.ticketUrl }}" target="_blank">{{ event.ticketUrl | linkinfo }}</a></p>
 		{% endif %}
-		
+
+		{% if mediasForEvent %}
+			<ul class="mediaGrid">
+				{% for media in mediasForEvent %}
+					<li><a href="/media/{{ media.slug }}" onclick="showMediaPopup({{ media.slug }}); return false;"><img src="/media/{{ media.slug }}/thumbnail"></a></li>
+				{% endfor %}
+			</ul>
+			<div class="afterMediaGrid"></div>
+		{% endif %}
+
 		{% if groups|length > 0 %}
 			{% for group in groups %}
 				<p class="groupTitle">About <a href="/group/{{ group.slugForUrl }}">{{ group.title }}</a></p>

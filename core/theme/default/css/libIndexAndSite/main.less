@@ -1,0 +1,805 @@
+/**
+ * @package Core
+ * @link http://ican.openacalendar.org/ OpenACalendar Open Source Software - Website
+ * @license http://ican.openacalendar.org/license.html 3-clause BSD
+ * @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
+ * @author James Baster <james@jarofgreen.co.uk>
+*/
+
+html {
+	background-color: @colourBackgroundOutsidePage;
+}
+
+body {
+	padding: 0;
+	margin: 0;
+	font-family: arial, sans-serif;
+	background-color: @colourBackgroundOutsidePage;
+}
+
+#page {
+	max-width: 1000px;
+	margin: 0 auto;
+	background: white;
+}
+
+
+#header {
+	background: @colourMain;
+	border-bottom: @colourDarker2 2px solid;
+	padding: 5px;
+	ul.menu {
+		padding:0;
+		margin: 0;
+		li#NotificationMenu {
+			img.notificationicon {
+				width: 16px;
+				height: 16px;
+			}
+			ul.submenu#NotificationSubMenu {
+				li {
+					padding: 5px;
+					border-bottom: 1px solid #ccc;
+					.title a {
+						display: block;
+						font-size: 10pt;
+						color: #999;
+						padding: 0;
+					}
+					.timesince, .site {
+						display: inline;
+						font-size: 8pt;
+						color: #999;
+						padding: 2px;
+					}
+				}
+				li.unread .title a {
+					font-size: 12pt;
+					color: #333;
+				}
+			}
+		}
+		li {
+			list-style-type: none;
+			display: inline-block;
+			font-size: 1.4em;
+			a {
+				text-decoration: none;
+				color: #333;
+				padding: 5px;
+				display:inline-block;
+			}
+			ul.submenu {
+				padding:0;
+				margin: 0;
+				display:none;
+				position: absolute;
+				background: #FFF;
+				border-bottom: #4d3e04 2px solid;
+				border-left: #4d3e04 2px solid;
+				border-right: #4d3e04 2px solid;
+				z-index: 999;
+				li {
+					list-style-type: none;
+					display: block;
+					a {
+						text-decoration: none;
+						color: #333;
+						font-size: 14pt;
+						padding: 5px;
+						display:inline-block;
+					}
+					a:hover {
+						color: black;
+						text-decoration: underline;
+					}
+				}
+			}
+		}
+		li.title {
+			img {
+				max-width: 30px;
+				max-height: 30px;
+			}
+			h1 {
+				color: black;
+				display: inline;
+				font-weight: bold;
+				font-size: 1.6em;
+			}
+		}
+		li.user {
+			float: right;
+		}
+	}
+	.afterMenu {
+		clear: both;
+	}
+}
+
+#body {
+	min-height: 400px;
+	padding: 5px ;
+	p {
+		padding: 5px 0;
+	}
+}
+
+h2 {
+	font-weight: bold;
+	font-size: 1.5em;
+	padding: 10px 0;
+}
+
+h3 {
+	font-weight: bold;
+	font-size: 1.2em;
+	padding: 10px 0;
+}
+
+#bodyLeft, #bodyRight {
+	padding: 10px 2px;
+	img {
+		max-width: 100%;
+	}
+	p {
+		padding: 5px 0;
+	}
+}
+/** on wide screens have 2 columns here **/
+@media screen and (min-width: @narrowScreensMakeTwoColumnsIntoOneBoundary) {
+	#bodyLeft{
+		width: 47%;
+		float: left;
+	}
+	#bodyRight{
+		width: 47%;
+		float: right;
+	}
+	#afterPage2Col {
+		clear: both;
+	}
+}
+
+
+
+.flash-notice {
+	margin: 10px 5px;
+	padding: 10px 5px;
+	text-align: center;
+	background: #cadeea;
+	border: 2px solid #A8C7DB;
+}
+
+
+.flash-error {
+	margin: 10px 5px;
+	padding: 10px 5px;
+	text-align: center;
+	background: #eb6c6c;
+	border: 2px solid #6f1818;
+}
+
+p {
+	margin: 10px 0;
+}
+
+ul.events {
+	li.event {
+		border-bottom: 2px solid #E9E9E9;
+	}
+	li.export {
+		text-align: right;
+		a {
+			color: #333;
+			text-decoration: none;
+		}
+		a:hover {
+			color: black;
+			text-decoration: underline;
+		}
+	}
+}
+ul.events li.event, div.event {
+	margin-bottom: 10px;
+	padding: 20px 0;
+	div.dateTimeIcon {
+		float: left;
+		width: 60px;
+		height: 80px;
+		position: relative;
+		z-index: 100;
+		margin: 0 10px 10px 0;
+		border: 2px solid #231f20;
+		.rounded-corners(4px);
+		div.dateIcon {
+			width: 60px;
+			height: 60px;
+			text-align: center;
+			background: #231f20;
+			.rounded-corners-bottom(2px);
+		}
+		div.timeIcon {
+			padding: 1px;
+			text-align: center;
+		}
+		span.deleted {
+			padding-top: 5px;
+			display: block;
+			color: white;
+		}
+		span.startDay {
+			font-weight: 200;
+			padding-top: 5px;
+			display: block;
+			color: white;
+		}
+		span.startDate {
+			font-size: 16pt;
+			font-weight: 400;
+			display: block;
+			color: white;
+		}
+		span.startMonthYear {
+			font-weight: 200;
+			display: block;
+			font-size: 0.75em;
+			color: white;
+		}
+		span.startTime {
+			font-size: 11pt;
+			color: black;
+		}
+		a {
+			text-decoration: none;
+			span.startDay {
+				color: white;
+			}
+			span.startDate {
+				color: white;
+			}
+			span.startMonthYear {
+				color: white;
+			}
+			span.startTime {
+				color: black;
+			}
+		}
+	}
+	div.title {
+		font-size: 16pt;
+		font-weight: bold;
+		line-height: 1.25em;
+		padding: 2px 0 10px 70px;
+		position: relative;
+		top: -5px;
+		a {
+			color: #333;
+			text-decoration: none;
+		}
+		a:hover {
+			color: black;
+			text-decoration: underline;
+		}
+	}
+	p.description {
+	}
+	p.groupTitle, p.venueTitle {
+		font-weight: bold;
+		font-size: 0.8em;
+		a {
+			color: black;
+			text-decoration: none;
+		}
+		a:hover {
+			text-decoration: underline; 
+		}
+	}
+	p.groupDescription, p.venueDescription {
+		font-size: 0.8em;
+		a {
+			color: black;
+			text-decoration: none;
+		}
+		a:hover {
+			text-decoration: underline; 
+		}
+	}
+	.dateAndLocationWrapper {
+		clear: both;
+		padding: 10px 0 0 0;
+		margin-top: 10px;
+		div.date {
+			display: block;
+			color: #ec2327;
+			font-weight: 400;
+			background: url('/theme/default/img/eventFooterCalendarIcon.png') no-repeat;
+			padding: 5px 10px 5px 20px;
+		}
+		div.location {
+			display: block;
+			color: #ec2327;
+			font-weight: 400;
+			background: url('/theme/default/img/eventFooterLocationIcon.png') no-repeat;
+			padding: 5px 10px 5px 20px;
+			a {
+				color: #ec2327;
+				text-decoration: none;
+			}
+		}
+	}
+	.map {
+		margin: 10px 0;
+		clear: both;
+		width: 90%;
+		height: 300px;
+	}
+	div.afterEventListing {
+		clear: both;
+	}
+	/** this is used on event listings **/
+	div.currentUserAttendance {
+		text-align: right;
+		a {
+			text-decoration: none;
+		}
+		div.formWrapper {
+			display: inline;
+			form {
+				display: inline;
+			}
+		}
+		div.activationLinkWrapper {
+			display: inline;
+		}
+		.savingIndicator, .savedIndicator {
+			font-style: italic;
+		}
+	}
+	/** this is used on event page **/
+	form.UserAttendingOptions {
+		.savingIndicator, .savedIndicator {
+			font-style: italic;
+		}
+	}
+}
+
+div.venue {
+	.locationWrapper {
+		clear: both;
+		padding: 10px 0 0 0;
+		margin-top: 10px;
+		div.location {
+			display: block;
+			color: #ec2327;
+			font-weight: 400;
+			background: url('/theme/default/img/eventFooterLocationIcon.png') no-repeat;
+			padding: 5px 10px 5px 20px;
+			a {
+				color: #ec2327;
+				text-decoration: none;
+			}
+		}
+	}
+	.map {
+		margin: 10px 0;
+		clear: both;
+		width: 90%;
+		height: 300px;
+	}
+}
+
+div.country {
+	.map {
+		margin: 10px 0;
+		clear: both;
+		width: 90%;
+		height: 300px;
+	}
+}
+
+
+div.filterListEventWrapper {
+	padding: 5px 0;
+	form.filterListEvent {
+		background: @colourLighter2;
+		padding: 10px;
+		div.inputField {
+			display: inline;
+			padding: 10px;
+		}
+		#eventListFilterFromWrapper {
+			input {
+				background: url('/theme/default/img/dateFilterBackground.png') no-repeat right white;
+			}
+		}
+		div.submitField {
+			display: inline;
+			padding: 10px;
+			input {
+				background: @colourDarker2;
+				color: white;
+				border: 2px solid @colourDarker2;
+				.rounded-corners(2px);
+				cursor:pointer;
+			}
+		}
+	}
+}
+
+
+#innerPageWrapper {
+	clear: both;
+	#innerPageActions {
+		padding: 10px 0 6px 0;
+		border-bottom: 1px solid #666;
+		li.action, li.actionWithSubMenu {
+			padding: 0px 5px;
+			display: inline;
+			float: right;
+			a {
+				color: #333;
+				text-decoration: none;
+			}
+			a:hover {
+				color: black;
+				text-decoration: underline;
+			}
+			@media screen and (max-width: @narrowScreensMakeEverythingHorizontalIntoVerticalBoundary) {
+				display:block;
+				float: none;
+				margin: 15px 0;
+			}
+		}
+		li.actionWithSubMenu ul.submenu {
+			padding:0;
+			margin: 0;
+			display:none;
+			position: absolute;
+			background: #FFF;
+			border-bottom: #4d3e04 2px solid;
+			border-left: #4d3e04 2px solid;
+			border-right: #4d3e04 2px solid;
+			z-index: 999;
+			li {
+				list-style-type: none;
+				display: block;
+				a {
+					text-decoration: none;
+					color: #333;
+					font-size: 12pt;
+					padding: 5px;
+					display:inline-block;
+				}
+				a:hover {
+					color: black;
+					text-decoration: underline;
+				}
+			}
+		}
+		li.tab {
+			.rounded-corners-top(3px);
+			display: inline;
+			padding: 5px;
+			margin: 0;
+			border-top: 1px solid #666;
+			border-left: 1px solid #666;
+			border-right: 1px solid #666;
+			background: #f2f2f2;
+			a {
+				color: black;
+				text-decoration: none;
+			}
+			a:hover {
+				color: blue;
+				text-decoration: underline;
+				
+			}
+			@media screen and (max-width: @narrowScreensMakeEverythingHorizontalIntoVerticalBoundary) {
+				display:block;
+				padding: 15px 5px;
+			}
+		}
+		li.currentTab {
+			background: #fff;	
+			border-top: 1px solid black;
+			border-left: 1px solid black;
+			border-right: 1px solid black;
+			border-bottom: 1px solid #fff;
+			a, a:hover {
+				color: black;
+				text-decoration: none;
+			}
+		}
+	}
+	#innerPage {
+		clear: both;
+		padding: 5px;
+		margin: 2px;
+		@media screen and (min-width: 750px) {
+			#innerPageLeft, #innerPageRight {
+				width: 47%;
+				float: left;
+			}
+		}
+
+		#afterInnerPageContent {
+			clear: both;
+		}
+	}
+}
+
+
+#PopupMask {
+	position: fixed;
+	top: 0px;
+	bottom: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: #ccc;
+    background-color: rgba(200,200,200,0.7);
+	z-index: 500;
+}
+
+.PopupBox {
+	border: 4px solid @colourDarker2;
+	.rounded-corners(2px);
+	background: white;
+	padding: 0;
+	min-width: 700px;
+	width: 50%;
+	top: 25px;
+	left: 20%;
+	@media screen and (max-width: 900px) {
+		min-width: 200px;
+		width: 95%;
+		top: 25px;
+		left: 10px;
+	}
+	position: fixed;
+	z-index: 1000;
+	.PopupBoxClose {
+		padding: 3px;
+		a {
+			color: white;
+			text-decoration: none;
+		}
+		background: @colourDarker2;
+		text-align: right;
+	}
+	.PopupBoxContent {
+		padding: 10px;
+	}
+}
+
+#ExportPopup {
+	#ExportPopupIntroText {
+		padding: 10px;
+		div {
+			display: inline;
+		}
+		label {
+			display: block;
+		}
+	}
+	ul#ExportPopupMenu {
+		padding: 15px 5px 5px 5px;
+		li {
+			padding: 2px;
+			line-height: 2.0em;
+			display: inline;
+			.wrapper {
+				.rounded-corners(3px);
+				display: inline;
+				padding: 5px;
+				margin: 3px;
+				border: 1px solid black;
+				background: #d4d8db;
+				line-height: 1.6;
+				a {
+					white-space: nowrap;
+					color: black;
+					text-decoration: none;
+					font-weight: bold;
+				}
+				&.current {
+					font-weight: bold;
+					background: #ffffff;
+					a {
+						color: #333;
+						text-decoration: none;
+						font-weight: bold;
+					}
+				}
+				&:hover {
+					background: #f2f2f2;
+				}
+				img {
+					max-width: 16px;
+					max-height: 16px;
+				}
+				@media screen and (max-width: @narrowScreensMakeEverythingHorizontalIntoVerticalBoundary) {
+					line-height: 0.1em;
+					.wrapper {
+						display:block;
+						a {
+							display:block;
+						}
+					}
+				}
+			}
+		}
+	}
+	.content {
+		padding: 10px;
+	}
+	#ExportToGoogleCalendar input.exportlink {
+		display: block;
+		width: 100%;
+	}
+}
+
+#SharePopup {
+	ul.SharePopupOptions {
+		padding: 10px;
+		li {
+			display: inline;
+			padding: 10px;
+			img {
+				max-width: 70px;
+				max-height: 70px;
+			}
+		}
+	}
+}
+
+.helpPopupLink {
+	img {
+		max-width: 20px;
+		max-height: 20px;
+	}
+}
+
+ul.timezones {	
+	li {
+		width: 200px;
+		margin: 5px 5px 5px 30px;
+		padding: 2px;
+		list-style-type: circle;
+	}
+}
+
+ul.listOfTextItems {
+	li {
+		margin: 5px 5px 5px 20px;
+		list-style-type: circle;
+	}
+}
+
+
+ul.breadcrumbs {
+	padding: 10px;
+	text-transform:lowercase;
+	li {
+		display: inline;
+		@media screen and (max-width: @narrowScreensMakeEverythingHorizontalIntoVerticalBoundary) {
+			display:block;
+		}
+		font-size: 0.8em;
+		padding: 5px 10px 5px 15px;
+		background: url('/theme/default/img/angleright16.png') left center no-repeat;
+		a {
+			text-decoration: none;
+			color: black;
+		}
+		a:hover {
+			text-decoration: underline;
+			color: black;
+		}
+	}
+	li.current {
+		a, a:hover {
+			text-decoration: none;
+			color: #555;
+		}
+	}
+}
+
+ul.actionList {
+	li.header {
+		padding: 10px 0;
+		font-size: 1.3em;
+		font-weight: bold;
+	}
+	li {
+		img {	
+			padding: 10px 10px 2px 2px;
+			max-width: 32px;
+			max-height: 32px;
+		}
+		a {
+			color: #333;
+			text-decoration: none;
+		}
+		a:hover {
+			color: black;
+			text-decoration: underline;
+		}
+	}
+}
+
+p.errorPageHeader {
+	color: #333;
+	font-size: 4em;
+	font-weight: bold;
+	margin: 2px 0;
+}
+
+p.errorPageText {
+	text-align: right;
+	color: #333;
+	font-size: 1.4em;
+	margin: 2px 0;
+	a {
+		color: #333;
+	}
+	a:hover {
+		color: black;
+	}
+}
+
+/** These Style rules are for the  list of notifications on the users notifications page, not in the header.
+**/
+ul.usernotifications {
+	li.usernotificationunread, li.usernotificationread {
+		padding: 10px;
+		border-bottom: 2px solid #ccc;
+		a.title {
+			display: block;
+			color: #333;
+		}
+		a.title:hover {
+			color: black;
+		}
+		div.timesince, div.site  {
+			display: inline;
+			color: #999;
+			font-size: 0.8em;
+			padding: 5px 0;
+		}
+	}
+	li.usernotificationunread a.title {
+		font-size: 1.4em;
+	}
+	li.usernotificationunread a.title {
+		font-size: 1.1em;
+	}
+}
+
+
+#footer {
+	padding: 10px 5px;
+	text-align: center;
+	font-style: italic;
+	font-size: 0.8em;
+	color: #333;
+	a {
+		color: #333;
+	}
+	a:hover {
+		color: black;
+	}
+	ul {
+		li {
+			display: inline;
+			padding: 0 5px;
+		}
+	}
+}
+
+@media screen and (max-width: @narrowScreensMakeTwoColumnsIntoOneBoundary) {
+	#footer ul li {
+		padding: 5px 0;
+		display: block;
+	}
+}

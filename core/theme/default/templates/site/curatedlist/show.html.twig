@@ -22,7 +22,19 @@
 {% block actions %}
 	{% if currentUserCanEditCuratedList and currentUserCanEditSite and currentSite.isFeatureCuratedList %}
 		<li class="action">
-			<a href="/curatedlist/{{ curatedlist.slug }}/edit"><img src="/theme/default/img/actionIcon.png?v={{ config.assetsVersion }}" class="icon"> edit</a>
+			<a href="/curatedlist/{{ curatedlist.slug }}/edit"><div class="iconPencilSmall"></div> edit</a>
+		</li>
+	{% endif %}
+	<li class="action">
+		<a href="/api1/curatedlist/{{ curatedlist.slug }}/events.ical" onclick="showExportPopup(); return false;">
+			<div class="iconDownloadSmall"></div> export
+		</a>
+	</li>
+	{% if currentSite.getIsWebRobotsAllowed %}
+		<li class="action">
+			<a href="#" onclick="showSharePopup(); return false;">
+				<div class="iconShareSmall"></div> share
+			</a>
 		</li>
 	{% endif %}
 {% endblock %}

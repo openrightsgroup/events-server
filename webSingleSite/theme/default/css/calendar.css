@@ -121,42 +121,523 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
-.PopupBox #EventPopupContent {
-  padding: 5px;
+.iconAppleSmall {
+  background-image: url('/theme/default/img/apple16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
 }
-.PopupBox #EventPopupTitle {
-  padding: 5px 0;
-  font-weight: bold;
-  font-size: 110%;
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconAppleSmall {
+    background-image: url('/theme/default/img/apple32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
 }
-.PopupBox #EventPopupDescription {
-  padding: 5px 0;
+.iconArrowLeftLarge {
+  background-image: url('/theme/default/img/arrowleft32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
 }
-.PopupBox #EventPopupTimes {
-  color: #ec2327;
-  background: url('/theme/default/img/eventFooterCalendarIcon.png') no-repeat;
-  padding: 5px 10px 5px 20px;
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconArrowLeftLarge {
+    background-image: url('/theme/default/img/arrowleft64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
 }
-.PopupBox .EventPopupLink {
-  padding: 5px 0;
-  text-align: right;
+.iconArrowRightLarge {
+  background-image: url('/theme/default/img/arrowright32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
 }
-.PopupBox #EventPopupGroupsWrapper .groupTitle {
-  padding: 5px 0;
-  font-weight: bold;
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconArrowRightLarge {
+    background-image: url('/theme/default/img/arrowright64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
 }
-.PopupBox #EventPopupGroupsWrapper .groupDescription {
-  padding: 5px 0;
+.iconBellOSmall {
+  background-image: url('/theme/default/img/bello16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
 }
-.PopupBox #EventPopupVenueWrapper .venueTitle {
-  padding: 5px 0;
-  font-weight: bold;
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconBellOSmall {
+    background-image: url('/theme/default/img/bello32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
 }
-.PopupBox #EventPopupVenueWrapper .venueDescription {
-  padding: 5px 0;
+.iconBellOLarge {
+  background-image: url('/theme/default/img/bello32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
 }
-.PopupBox #EventPopupVenueWrapper .venueAddress {
-  padding: 5px 0;
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconBellOLarge {
+    background-image: url('/theme/default/img/bello64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconCalendarOLarge {
+  background-image: url('/theme/default/img/calendaro32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconCalendarOLarge {
+    background-image: url('/theme/default/img/calendaro64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconCircleONotchSmall {
+  background-image: url('/theme/default/img/circleonotch16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconCircleONotchSmall {
+    background-image: url('/theme/default/img/circleonotch32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconClockOLarge {
+  background-image: url('/theme/default/img/clocko32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconClockOLarge {
+    background-image: url('/theme/default/img/clocko64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconCloundDownloadSmall {
+  background-image: url('/theme/default/img/clouddownload16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconCloundDownloadSmall {
+    background-image: url('/theme/default/img/clouddownload32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconDesktopSmall {
+  background-image: url('/theme/default/img/desktop16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconDesktopSmall {
+    background-image: url('/theme/default/img/desktop32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconDownloadSmall {
+  background-image: url('/theme/default/img/download16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconDownloadSmall {
+    background-image: url('/theme/default/img/download32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconDownloadLarge {
+  background-image: url('/theme/default/img/download32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconDownloadLarge {
+    background-image: url('/theme/default/img/download64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconEnvelopeOLarge {
+  background-image: url('/theme/default/img/envelopeo32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconEnvelopeOLarge {
+    background-image: url('/theme/default/img/envelopeo64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconEyeLarge {
+  background-image: url('/theme/default/img/eye32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconEyeLarge {
+    background-image: url('/theme/default/img/eye64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconFacebookSquareLarge {
+  background-image: url('/theme/default/img/facebooksquare32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconFacebookSquareLarge {
+    background-image: url('/theme/default/img/facebooksquare64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconFileImageOSmall {
+  background-image: url('/theme/default/img/fileimageo16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconFileImageOSmall {
+    background-image: url('/theme/default/img/fileimageo32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconFileImageOLarge {
+  background-image: url('/theme/default/img/fileimageo32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconFileImageOLarge {
+    background-image: url('/theme/default/img/fileimageo64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconGearsLarge {
+  background-image: url('/theme/default/img/gears32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconGearsLarge {
+    background-image: url('/theme/default/img/gears64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconGlobeLarge {
+  background-image: url('/theme/default/img/globe32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconGlobeLarge {
+    background-image: url('/theme/default/img/globe64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconGoogleSmall {
+  background-image: url('/theme/default/img/google16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconGoogleSmall {
+    background-image: url('/theme/default/img/google32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconGoogleLarge {
+  background-image: url('/theme/default/img/google32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconGoogleLarge {
+    background-image: url('/theme/default/img/google64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconHistoryLarge {
+  background-image: url('/theme/default/img/history32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconHistoryLarge {
+    background-image: url('/theme/default/img/history64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconKeyLarge {
+  background-image: url('/theme/default/img/key32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconKeyLarge {
+    background-image: url('/theme/default/img/key64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconListSmall {
+  background-image: url('/theme/default/img/list16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconListSmall {
+    background-image: url('/theme/default/img/list32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconShareSmall {
+  background-image: url('/theme/default/img/share16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconShareSmall {
+    background-image: url('/theme/default/img/share32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconTagsSmall {
+  background-image: url('/theme/default/img/tags16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconTagsSmall {
+    background-image: url('/theme/default/img/tags32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconTagsLarge {
+  background-image: url('/theme/default/img/tags32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconTagsLarge {
+    background-image: url('/theme/default/img/tags64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconTimesCircleOLarge {
+  background-image: url('/theme/default/img/timescircleo32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconTimesCircleOLarge {
+    background-image: url('/theme/default/img/timescircleo64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconTrashOSmall {
+  background-image: url('/theme/default/img/trasho16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconTrashOSmall {
+    background-image: url('/theme/default/img/trasho32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconTwitterLarge {
+  background-image: url('/theme/default/img/twitter32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconTwitterLarge {
+    background-image: url('/theme/default/img/twitter64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconPencilSmall {
+  background-image: url('/theme/default/img/pencil16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconPencilSmall {
+    background-image: url('/theme/default/img/pencil32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconQuestionCircleSmall {
+  background-image: url('/theme/default/img/questioncircle16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconQuestionCircleSmall {
+    background-image: url('/theme/default/img/questioncircle32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconUsersLarge {
+  background-image: url('/theme/default/img/users32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconUsersLarge {
+    background-image: url('/theme/default/img/users64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconUserLarge {
+  background-image: url('/theme/default/img/user32.png');
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconUserLarge {
+    background-image: url('/theme/default/img/user64.png');
+    background-size: 32px 32px;
+    -webkit-background-size: 32px 32px;
+    -moz-background-size: 32px 32px;
+  }
+}
+.iconUserAttendingSmall {
+  background-image: url('/theme/default/img/userattending16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconUserAttendingSmall {
+    background-image: url('/theme/default/img/userattending32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconUserNotAttendingSmall {
+  background-image: url('/theme/default/img/usernotattending16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconUserNotAttendingSmall {
+    background-image: url('/theme/default/img/usernotattending32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
+}
+.iconUserMaybeAttendingSmall {
+  background-image: url('/theme/default/img/usermaybeattending16.png');
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .iconUserMaybeAttendingSmall {
+    background-image: url('/theme/default/img/usermaybeattending32.png');
+    background-size: 16px 16px;
+    -webkit-background-size: 16px 16px;
+    -moz-background-size: 16px 16px;
+  }
 }
 html {
   background-color: #eeeeee;
@@ -223,7 +704,7 @@ p {
 }
 #header h3 {
   padding: 0px 0px 0px 10px;
-  background: url('/theme/default/img/breadcrumbsDivider.png') left center no-repeat;
+  background: url('/theme/default/img/angleright16.png') left center no-repeat;
   display: inline;
   font-size: 1.1em;
 }
@@ -239,7 +720,7 @@ div.filterListEventWrapper {
   padding: 5px 0;
 }
 div.filterListEventWrapper form.filterListEvent {
-  background: #e9e9e9;
+  background: #72DA72;
   padding: 10px;
 }
 div.filterListEventWrapper form.filterListEvent div.inputField {
@@ -254,9 +735,9 @@ div.filterListEventWrapper form.filterListEvent div.submitField {
   padding: 10px;
 }
 div.filterListEventWrapper form.filterListEvent div.submitField input {
-  background: #009900;
+  background: #004300;
   color: white;
-  border: 2px solid #009900;
+  border: 2px solid #004300;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   -ms-border-radius: 2px;
@@ -295,8 +776,8 @@ table.calendar .events {
   min-height: 50px;
 }
 table.calendar .event {
-  background: none repeat scroll 0 0 #DBD3AF;
-  border: 1px solid #356C8F;
+  background: none repeat scroll 0 0 #36C036;
+  border: 1px solid #007900;
   border-radius: 3px 3px 3px 3px;
   margin: 5px 15px;
   padding: 5px;
@@ -319,6 +800,9 @@ table.calendar .event div.currentUserAttendance {
 table.calendar .event div.currentUserAttendance a {
   text-decoration: none;
 }
+table.calendar .event .below {
+  clear: both;
+}
 table.calendar .deleted {
   background: url('/theme/default/img/deletedBackground.png');
 }
@@ -333,7 +817,7 @@ table.calendar .deleted {
   z-index: 500;
 }
 .PopupBox {
-  border: 4px solid #0DA20D;
+  border: 4px solid #004300;
   -webkit-border-radius: 2px;
   -moz-border-radius: 2px;
   -ms-border-radius: 2px;
@@ -358,7 +842,7 @@ table.calendar .deleted {
 }
 .PopupBox .PopupBoxClose {
   padding: 3px;
-  background: #0DA20D;
+  background: #004300;
   text-align: right;
 }
 .PopupBox .PopupBoxClose a {
@@ -453,4 +937,41 @@ table.calendar .deleted {
   text-align: center;
   font-style: italic;
   font-size: 0.8em;
+}
+.PopupBox #EventPopupContent {
+  padding: 5px;
+}
+.PopupBox #EventPopupTitle {
+  padding: 5px 0;
+  font-weight: bold;
+  font-size: 110%;
+}
+.PopupBox #EventPopupDescription {
+  padding: 5px 0;
+}
+.PopupBox #EventPopupTimes {
+  color: #ec2327;
+  background: url('/theme/default/img/eventFooterCalendarIcon.png') no-repeat;
+  padding: 5px 10px 5px 20px;
+}
+.PopupBox .EventPopupLink {
+  padding: 5px 0;
+  text-align: right;
+}
+.PopupBox #EventPopupGroupsWrapper .groupTitle {
+  padding: 5px 0;
+  font-weight: bold;
+}
+.PopupBox #EventPopupGroupsWrapper .groupDescription {
+  padding: 5px 0;
+}
+.PopupBox #EventPopupVenueWrapper .venueTitle {
+  padding: 5px 0;
+  font-weight: bold;
+}
+.PopupBox #EventPopupVenueWrapper .venueDescription {
+  padding: 5px 0;
+}
+.PopupBox #EventPopupVenueWrapper .venueAddress {
+  padding: 5px 0;
 }

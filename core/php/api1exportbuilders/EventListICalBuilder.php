@@ -4,6 +4,10 @@ namespace api1exportbuilders;
 use Symfony\Component\HttpFoundation\Response;
 use models\EventModel;
 use models\SiteModel;
+use models\GroupModel;
+use models\VenueModel;
+use models\AreaModel;
+use models\CountryModel;
 
 /**
  *
@@ -52,7 +56,8 @@ class EventListICalBuilder extends BaseEventListBuilder  {
 		return $response;				
 	}
 	
-	public function addEvent(EventModel $event) {
+	public function addEvent(EventModel $event, $groups = array(), VenueModel $venue = null,
+							 AreaModel $area = null, CountryModel $country = null, $eventMedias = array()) {
 		global $CONFIG;
 		
 		$siteSlug = $this->site ? $this->site->getSlug() : $event->getSiteSlug();
@@ -78,6 +83,9 @@ class EventListICalBuilder extends BaseEventListBuilder  {
 					//($event->getUrl() ? $event->getUrl()."\n" : '').
 					$url."\n".
 					"Powered by ".$CONFIG->siteTitle;
+			foreach($this->extraFooters as $extraFooter) {
+				$description .= "\n".$extraFooter->getText();
+			}
 			$txt .= $this->getIcalLine('DESCRIPTION',$description);
 			
 			$descriptionHTML = "<html><body>";
@@ -88,10 +96,8 @@ class EventListICalBuilder extends BaseEventListBuilder  {
 			//if ($event->getUrl()) $descriptionHTML .= '<p>More info: <a href="'.$event->getUrl().'">'.$event->getUrl().'</a></p>';
 			$descriptionHTML .= '<p>More info: <a href="'.$url.'">'.$url.'</a></p>';
 			$descriptionHTML .= '<p style="font-style:italic;font-size:80%">Powered by <a href="'.$url.'">'.$CONFIG->siteTitle.'</a>';
-			if ($CONFIG->sponsor1Html && $CONFIG->sponsor1Link && $CONFIG->sponsor2Html && $CONFIG->sponsor2Link) {
-				$descriptionHTML .= ', Sponsored by <a href="'.$CONFIG->sponsor1Link.'">'.$CONFIG->sponsor1Html.'</a> and <a href="'.$CONFIG->sponsor2Link.'">'.$CONFIG->sponsor2Html.'</a>';
-			} else if ($CONFIG->sponsor1Html && $CONFIG->sponsor1Link) {
-				$descriptionHTML .= ', Sponsored by <a href="'.$CONFIG->sponsor1Link.'">'.$CONFIG->sponsor1Html.'</a>';
+			foreach($this->extraFooters as $extraFooter) {
+				$descriptionHTML .= "<br>".$extraFooter->getHtml();
 			}
 			$descriptionHTML .= '</p>';
 			$descriptionHTML .= '</body></html>';
