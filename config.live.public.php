@@ -29,13 +29,13 @@ $CONFIG->webCommonSessionDomain = "campaignevents.co.uk";
 $CONFIG->bcryptRounds = 5;
 
 
-$CONFIG->siteTitle = "Open rights Group Events";
+$CONFIG->siteTitle = "Campaign Events";
 
 $CONFIG->emailFrom = "noreply@campaignevents.co.uk";
-$CONFIG->emailFromName = "Open rights Group Events";
+$CONFIG->emailFromName = "Campaign Events";
 
-$CONFIG->copyrightNoticeText = "Copyright JMB Technology ltd 2013-2014";
-$CONFIG->copyrightNoticeHTML = '&copy; <a href="http://jmbtechnology.co.uk/" target="_blank">JMB Technology ltd</a> 2013-2014';
+$CONFIG->copyrightNoticeText = "Copyright Open Rights Group and JMB Technology ltd 2013-2014";
+$CONFIG->copyrightNoticeHTML = '&copy; <a href="https://www.openrightsgroup.org/">Open Rights Group</a> and <a href="http://jmbtechnology.co.uk/" target="_blank">JMB Technology ltd</a> 2013-2014';
 
 $CONFIG->cacheFeedsInSeconds = 3600;
 
