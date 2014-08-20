@@ -1,0 +1,72 @@
+{#
+ # @package Core
+ # @link http://ican.openacalendar.org/ OpenACalendar Open Source Software - Website
+ # @license http://ican.openacalendar.org/license.html 3-clause BSD
+ # @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
+ # @author James Baster <james@jarofgreen.co.uk>
+ #}
+{% extends 'site/event/page.html.twig' %}
+
+
+{% block pageTitle %}Edit {{ event.summaryDisplay }} - {% endblock %}
+
+{% block htmlHeader %}
+	{% include 'site/common/mapLibrary.css.html.twig' %}
+{% endblock %}
+
+{% block innerContent %}
+
+
+	<p>Please set a rough area or city. This helps people find the event.</p>
+
+	<form id="EditEventAreaForm" action="" method="get" class="styled">
+
+		<div class="rowWrapper">
+			<div class="labelWrapper">Area or city</div>
+			<div class="widgetWrapperPlacementOnly"><input type="text" name="search"  id="SearchField" value="{{ search | e('html_attr') }}" autocomplete="off"></div>
+			<div class="after"></div>
+		</div>
+
+		<div class="actionWrapperBig"><input type="submit" value="Search"></div>
+	</form>
+
+	<div id="innerPageLeft" class="hideIfOneCol">
+		<div id="MapWrapper">
+			<div id="Map" class="leftColumnFullWidth"></div>
+		</div>
+	</div>
+
+
+	<div id="innerPageRight">
+		<ul class="areasList" id="EditEventAreaResults">
+			{% for area in areas %}
+				<li class="area" {%  if area.minLat %}onmouseover="mapToBounds({{  area.minLat }}, {{  area.maxLat }}, {{  area.minLng }}, {{  area.maxLng }})"{%  endif %}>
+					<form action="/event/{{  event.slugForURL }}/edit/area" method="post" class="oneActionFormRight">
+						<input type="hidden" name="CSFRToken" value="{{ getCSFRToken() }}">
+						<input type="hidden" name="area_slug" value="{{  area.slug }}">
+						<input type="submit" value="Select {{ area.title }}">
+					</form>
+					<div class="title">{{ area.title }}</div>
+					{%  if area.parent1Title %}<div>{{ area.parent1Title }}</div>{% endif %}
+					<div class="afterOneActionFormRight"></div>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+	<script type="text/javascript">
+		var countryMaxLat = {{  country.maxLat }};
+		var countryMinLat = {{  country.minLat }};
+		var countryMaxLng = {{  country.maxLng }};
+		var countryMinLng = {{  country.minLng }};
+		var currentEventSlug = "{{  event.slug }}";
+		var CSFRToken = "{{ getCSFRToken() }}";
+	</script>
+	{% include 'site/common/mapLibrary.js.html.twig' %}
+	<script type="text/javascript" src="/theme/default/js/eventedit.area.js?v={{ config.assetsVersion }}"></script>
+{% endblock %}
+

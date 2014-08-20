@@ -26,14 +26,14 @@
 			from the same organisers easily.</p>
 
 		<form id="GroupSearchForm" style="display: none;">
-			Search for an existing group: <input type="text" id="GroupSearchText">
+			Search for an existing group: <input type="text" id="GroupSearchText" autocomplete="off">
 		</form>
 		
 		<ul class="groups" id="GroupSearchList">
 		</ul>
 		
 		<div class="bigButtonContainer">
-			<a  class="button" href="/group/new">Create a new group</a>
+			<a  class="button" href="/group/new" id="NewGroupLink">Create a new group</a>
 			<a  class="button" href="/group" id="GroupFindFallback">Find an existing group</a>
 		</div>	
 

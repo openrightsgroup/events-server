@@ -7,6 +7,8 @@
  #}
 {% extends 'sysadmin/page.html.twig' %}
 
+{% block pageTitle %}Site {{  site.title }} - {% endblock %}
+
 {% block content %}
 
 
@@ -107,6 +109,7 @@
 			<th>More</th>
 			<td>
 				<ul>
+					<li><a href="/sysadmin/site/{{ site.id }}/owner">Owner</a></li>
 					<li><a href="/sysadmin/site/{{ site.id }}/country">Countries</a></li>
 					<li><a href="/sysadmin/site/{{ site.id }}/editors">Editors</a></li>
 					<li><a href="/sysadmin/site/{{ site.id }}/watchers">Watchers</a></li>

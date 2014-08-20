@@ -7,6 +7,8 @@ use models\GroupModel;
 use models\EventModel;
 use models\SiteModel;
 use models\UserAccountModel;
+use repositories\builders\EventRepositoryBuilder;
+use repositories\builders\UserAccountRepositoryBuilder;
 use repositories\UserWatchesGroupRepository;
 
 /**
@@ -109,15 +111,16 @@ class GroupRepository {
 					'description'=>$group->getDescription(),
 				));
 			
-			$stat = $DB->prepare("INSERT INTO group_history (group_id, title, url, description, user_account_id  , created_at,approved_at, twitter_username) VALUES ".
-					"(:group_id, :title, :url, :description,  :user_account_id  , :created_at, :approved_at, :twitter_username)");
+			$stat = $DB->prepare("INSERT INTO group_history (group_id, title, url, description, user_account_id  , created_at,approved_at, twitter_username, is_duplicate_of_id) VALUES ".
+					"(:group_id, :title, :url, :description,  :user_account_id  , :created_at, :approved_at, :twitter_username, :is_duplicate_of_id)");
 			$stat->execute(array(
 					'group_id'=>$group->getId(),
 					'title'=>substr($group->getTitle(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'url'=>substr($group->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'description'=>$group->getDescription(),
 					'user_account_id'=>$creator->getId(),	
-					'twitter_username'=>substr($group->getTwitterUsername(),0,VARCHAR_COLUMN_LENGTH_USED),			
+					'twitter_username'=>substr($group->getTwitterUsername(),0,VARCHAR_COLUMN_LENGTH_USED),
+					'is_duplicate_of_id'=>$group->getIsDuplicateOfId(),
 					'created_at'=>\TimeSource::getFormattedForDataBase(),
 					'approved_at'=>\TimeSource::getFormattedForDataBase(),
 				));
@@ -143,15 +146,16 @@ class GroupRepository {
 					'id'=>$group->getId(),
 				));
 			
-			$stat = $DB->prepare("INSERT INTO group_history (group_id, title, url, description, user_account_id  , created_at, approved_at, twitter_username, is_deleted) VALUES ".
-					"(:group_id, :title, :url, :description,  :user_account_id  , :created_at, :approved_at, :twitter_username, '1')");
+			$stat = $DB->prepare("INSERT INTO group_history (group_id, title, url, description, user_account_id  , created_at, approved_at, twitter_username, is_deleted, is_duplicate_of_id) VALUES ".
+					"(:group_id, :title, :url, :description,  :user_account_id  , :created_at, :approved_at, :twitter_username, '1', :is_duplicate_of_id)");
 			$stat->execute(array(
 					'group_id'=>$group->getId(),
 					'title'=>substr($group->getTitle(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'url'=>substr($group->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
 					'description'=>$group->getDescription(),
 					'user_account_id'=>$creator->getId(),	
-					'twitter_username'=>substr($group->getTwitterUsername(),0,VARCHAR_COLUMN_LENGTH_USED),			
+					'twitter_username'=>substr($group->getTwitterUsername(),0,VARCHAR_COLUMN_LENGTH_USED),
+					'is_duplicate_of_id'=>$group->getIsDuplicateOfId(),
 					'created_at'=>\TimeSource::getFormattedForDataBase(),
 					'approved_at'=>\TimeSource::getFormattedForDataBase(),
 				));
@@ -326,8 +330,75 @@ class GroupRepository {
 		
 		return 2;
 	}
-	
-	
+
+	public function markDuplicate(GroupModel $duplicateGroup, GroupModel $originalGroup, UserAccountModel $user=null) {
+		global $DB;
+
+		try {
+			$DB->beginTransaction();
+
+			$stat = $DB->prepare("UPDATE group_information  SET is_duplicate_of_id = :is_duplicate_of_id, is_deleted='1' WHERE id=:id");
+			$stat->execute(array(
+				'id'=>$duplicateGroup->getId(),
+				'is_duplicate_of_id'=>$originalGroup->getId(),
+			));
+
+			$stat = $DB->prepare("INSERT INTO group_history (group_id, title, url, description, user_account_id  , created_at,approved_at, twitter_username, is_duplicate_of_id, is_deleted) VALUES ".
+				"(:group_id, :title, :url, :description,  :user_account_id  , :created_at, :approved_at, :twitter_username, :is_duplicate_of_id, '1')");
+			$stat->execute(array(
+				'group_id'=>$duplicateGroup->getId(),
+				'title'=>substr($duplicateGroup->getTitle(),0,VARCHAR_COLUMN_LENGTH_USED),
+				'url'=>substr($duplicateGroup->getUrl(),0,VARCHAR_COLUMN_LENGTH_USED),
+				'description'=>$duplicateGroup->getDescription(),
+				'user_account_id'=>($user ? $user->getId() : null),
+				'twitter_username'=>substr($duplicateGroup->getTwitterUsername(),0,VARCHAR_COLUMN_LENGTH_USED),
+				'is_duplicate_of_id'=>$originalGroup->getId(),
+				'created_at'=>\TimeSource::getFormattedForDataBase(),
+				'approved_at'=>\TimeSource::getFormattedForDataBase(),
+			));
+
+			// Users Watching Group
+			$ufgr = new UserWatchesGroupRepository();
+			$usersRepo = new UserAccountRepositoryBuilder();
+			$usersRepo->setWatchesGroup($duplicateGroup);
+			foreach($usersRepo->fetchAll() as $user) {
+				$ufgr->startUserWatchingGroupIfNotWatchedBefore($user, $originalGroup);
+			}
+
+			// Events in Group
+			$statCheck = $DB->prepare("SELECT * FROM event_in_group WHERE group_id=:group_id AND ".
+				" event_id=:event_id AND removed_at IS NULL ");
+			$statAdd = $DB->prepare("INSERT INTO event_in_group (group_id,event_id,added_by_user_account_id,added_at,addition_approved_at,is_main_group) ".
+				"VALUES (:group_id,:event_id,:added_by_user_account_id,:added_at,:addition_approved_at,:is_main_group)");
+			$erb = new EventRepositoryBuilder();
+			$erb->setGroup($duplicateGroup);
+			foreach($erb->fetchAll() as $event) {
+				// check event not already in list
+				$statCheck->execute(array(
+					'group_id'=>$originalGroup->getId(),
+					'event_id'=>$event->getId(),
+				));
+				if ($statCheck->rowCount() == 0) {
+					// TODO is_main_group ??????????????????
+					$statAdd->execute(array(
+						'group_id'=>$originalGroup->getId(),
+						'event_id'=>$event->getId(),
+						'is_main_group'=>0,
+						'added_by_user_account_id'=>($user?$user->getId():null),
+						'added_at'=>  \TimeSource::getFormattedForDataBase(),
+						'addition_approved_at'=>  \TimeSource::getFormattedForDataBase(),
+					));
+				}
+			}
+
+			$DB->commit();
+		} catch (Exception $e) {
+			$DB->rollBack();
+		}
+	}
+
+
+
 	public function purge(GroupModel $group) {
 		global $DB;
 		try {

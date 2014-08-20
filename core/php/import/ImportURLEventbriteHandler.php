@@ -31,17 +31,25 @@ class ImportURLEventbriteHandler extends ImportURLHandlerBase {
 		
 		if ($urlBits['host']== 'eventbrite.co.uk' || $urlBits['host']== 'www.eventbrite.co.uk') {
 			$bits =  explode("/",$urlBits['path']);
-			if ($bits[1] == 'event' && intval($bits[2]) > 0) {
-				$this->newFeedURL = 'http://www.eventbrite.co.uk/calendar.ics?eid='.$bits[2].'&calendar=ical';						 
-				return true;
+			if (in_array($bits[1], array('event','e'))) {
+				$slugBits = explode("-", $bits[2]);
+				$slug = array_pop($slugBits);
+				if (intval($slug)) {
+					$this->newFeedURL = 'http://www.eventbrite.co.uk/calendar.ics?eid='.$slug.'&calendar=ical';
+					return true;
+				}
 			}
 		}
 		
 		if ($urlBits['host']== 'eventbrite.com' || $urlBits['host']== 'www.eventbrite.com') {
 			$bits =  explode("/",$urlBits['path']);
-			if ($bits[1] == 'event' && intval($bits[2]) > 0) {
-				$this->newFeedURL = 'http://www.eventbrite.com/calendar.ics?eid='.$bits[2].'&calendar=ical';						 
-				return true;
+			if (in_array($bits[1], array('event','e')) && intval($bits[2]) > 0) {
+				$slugBits = explode("-", $bits[2]);
+				$slug = array_pop($slugBits);
+				if (intval($slug)) {
+					$this->newFeedURL = 'http://www.eventbrite.com/calendar.ics?eid='.$slug.'&calendar=ical';
+					return true;
+				}
 			}
 		}
 		
@@ -89,6 +97,7 @@ class ImportURLEventbriteHandler extends ImportURLHandlerBase {
 		if ($this->newFeedURL) {
 			$this->importURLRun->setRealUrl($this->newFeedURL);
 			$this->importURLRun->setFlag(ImportURLRun::$FLAG_ADD_UIDS);
+			$this->importURLRun->setFlag(ImportURLRun::$FLAG_SET_TICKET_URL_AS_URL);
 		}
 	}
 

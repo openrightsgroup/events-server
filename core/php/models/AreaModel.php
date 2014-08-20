@@ -29,6 +29,9 @@ class AreaModel {
 	protected $cached_max_lat;
 	protected $cached_min_lng;
 	protected $cached_max_lng;
+	protected $is_duplicate_of_id;
+
+	protected $parent_1_title;
 
 
 	public function setFromDataBaseRow($data) {
@@ -47,6 +50,8 @@ class AreaModel {
 		$this->cached_max_lat = $data['cached_max_lat'];
 		$this->cached_min_lng = $data['cached_min_lng'];
 		$this->cached_max_lng = $data['cached_max_lng'];
+		$this->parent_1_title = isset($data['parent_1_title']) ? $data['parent_1_title'] : null;
+		$this->is_duplicate_of_id = $data['is_duplicate_of_id'];
 	}
 	
 	public function getId() {
@@ -187,5 +192,25 @@ class AreaModel {
 	public function getHasBounds() {
 		return (boolean)$this->cached_max_lat;
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getParent1Title()
+	{
+		return $this->parent_1_title;
+	}
+
+	public function setIsDuplicateOfId($is_duplicate_of_id)
+	{
+		$this->is_duplicate_of_id = $is_duplicate_of_id;
+	}
+
+	public function getIsDuplicateOfId()
+	{
+		return $this->is_duplicate_of_id;
+	}
+
+
 }
 

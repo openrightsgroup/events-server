@@ -37,11 +37,25 @@ class UploadNewMediaForm extends AbstractType{
 			'required'=>false, 
 			'max_length'=>VARCHAR_COLUMN_LENGTH_USED
 		));
-		$builder->add('sorce_url', 'url', array(
+		$builder->add('source_url', 'url', array(
 			'label'=>'Source URL',
 			'required'=>false, 
 			'max_length'=>VARCHAR_COLUMN_LENGTH_USED
 		));
+
+
+		/** @var \closure $myExtraFieldValidator **/
+		$myExtraFieldValidator = function(FormEvent $event){
+			global $CONFIG;
+			$form = $event->getForm();
+			// URL validation. We really can't do much except verify ppl haven't put a space in, which they might do if they just type in Google search terms (seen it done)
+			if (strpos($form->get("source_url")->getData(), " ") !== false) {
+				$form['source_url']->addError(new FormError("Please enter a URL"));
+			}
+		};
+
+		// adding the validator to the FormBuilderInterface
+		$builder->addEventListener(FormEvents::POST_BIND, $myExtraFieldValidator);
 	}
 	
 	public function getName() {
@@ -54,3 +68,4 @@ class UploadNewMediaForm extends AbstractType{
 	}
 	
 }
+

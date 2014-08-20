@@ -27,8 +27,10 @@ class GroupNewController {
 		
 		$group = new GroupModel();
 		
-		$form = $app['form.factory']->create(new GroupNewForm(), $group);
-		
+		$form = $app['form.factory']->create(new GroupNewForm($request->query->get('title')), $group);
+
+
+
 		if ('POST' == $request->getMethod()) {
 			$form->bind($request);
 
@@ -37,7 +39,7 @@ class GroupNewController {
 				$groupRepository = new GroupRepository();
 				$groupRepository->create($group, $app['currentSite'], userGetCurrent());
 				
-				return $app->redirect("/group/".$group->getSlug());
+				return $app->redirect("/group/".$group->getSlugForUrl());
 				
 			}
 		}

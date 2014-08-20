@@ -167,8 +167,9 @@ h3 {
 	margin: 10px 5px;
 	padding: 10px 5px;
 	text-align: center;
-	background: #cadeea;
-	border: 2px solid #A8C7DB;
+	background: @flashNoticeBackground;
+	border: 2px solid @flashNoticeBorder;
+	.rounded-corners(5px);
 }
 
 
@@ -176,8 +177,9 @@ h3 {
 	margin: 10px 5px;
 	padding: 10px 5px;
 	text-align: center;
-	background: #eb6c6c;
-	border: 2px solid #6f1818;
+	background: @flashErrorBackground;
+	border: 2px solid @flashErrorBorder;
+	.rounded-corners(5px);
 }
 
 p {
@@ -305,29 +307,6 @@ ul.events li.event, div.event {
 			text-decoration: underline; 
 		}
 	}
-	.dateAndLocationWrapper {
-		clear: both;
-		padding: 10px 0 0 0;
-		margin-top: 10px;
-		div.date {
-			display: block;
-			color: #ec2327;
-			font-weight: 400;
-			background: url('/theme/default/img/eventFooterCalendarIcon.png') no-repeat;
-			padding: 5px 10px 5px 20px;
-		}
-		div.location {
-			display: block;
-			color: #ec2327;
-			font-weight: 400;
-			background: url('/theme/default/img/eventFooterLocationIcon.png') no-repeat;
-			padding: 5px 10px 5px 20px;
-			a {
-				color: #ec2327;
-				text-decoration: none;
-			}
-		}
-	}
 	.map {
 		margin: 10px 0;
 		clear: both;
@@ -360,6 +339,30 @@ ul.events li.event, div.event {
 	form.UserAttendingOptions {
 		.savingIndicator, .savedIndicator {
 			font-style: italic;
+		}
+	}
+}
+
+.dateAndLocationWrapper {
+	clear: both;
+	padding: 10px 0 0 0;
+	margin-top: 10px;
+	div.date {
+		display: block;
+		color: #ec2327;
+		font-weight: 400;
+		background: url('/theme/default/img/eventFooterCalendarIcon.png') no-repeat;
+		padding: 5px 10px 5px 20px;
+	}
+	div.location {
+		display: block;
+		color: #ec2327;
+		font-weight: 400;
+		background: url('/theme/default/img/eventFooterLocationIcon.png') no-repeat;
+		padding: 5px 10px 5px 20px;
+		a {
+			color: #ec2327;
+			text-decoration: none;
 		}
 	}
 }
@@ -520,6 +523,11 @@ div.filterListEventWrapper {
 			#innerPageLeft, #innerPageRight {
 				width: 47%;
 				float: left;
+			}
+		}
+		@media screen and (max-width: 750px) {
+			#innerPageLeft.hideIfOneCol, #innerPageRight.hideIfOneCol {
+				display: none;
 			}
 		}
 

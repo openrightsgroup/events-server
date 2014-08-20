@@ -14,8 +14,8 @@
 
 	<p>You can also <a href="/group/{{ group.slugForUrl }}/newevent">add the event details by hand</a>.</p>
 
-
-	<form action="#" method="post" class="styled">
+	{# We don't client side validate any form with URL fields to get around UI/UX bug. See https://github.com/OpenACalendar/OpenACalendar-Web-Core/issues/221  #}
+	<form action="#" method="post" class="styled" novalidate="novalidate">
 
 		{{ form_errors(form) }}
 
@@ -25,7 +25,7 @@
 		
 		
 		<div class="rowWrapper">
-			<div class="labelWrapper">Are all events in one place?</div>
+			<div class="labelWrapper" id="ChangeEventAreaListLabel">Are all events in one place?</div>
 			<div class="widgetWrapperPlacementOnly">
 				<ul id="ChangeEventAreaList">
 				</ul>
