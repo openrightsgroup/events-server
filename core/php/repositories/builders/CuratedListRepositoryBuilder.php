@@ -6,7 +6,6 @@ use models\SiteModel;
 use models\CuratedListModel;
 use models\UserAccountModel;
 use models\EventModel;
-use models\GroupModel;
 
 /**
  *
@@ -40,13 +39,6 @@ class CuratedListRepositoryBuilder  extends BaseRepositoryBuilder {
 		$this->eventInfo = $event;
 	}
 	
-	/** @var GroupModel **/
-	protected $groupInfo;
-	
-	public function setGroupInformation(GroupModel $group) {
-		$this->groupInfo = $group;
-	}
-	
 	protected function build() {
 
 		$this->select[] = ' curated_list_information.* ';
@@ -69,13 +61,6 @@ class CuratedListRepositoryBuilder  extends BaseRepositoryBuilder {
 			$this->params['event_id'] = $this->eventInfo->getId();
 			$this->select[] =  " event_in_curated_list.added_at AS is_event_in_list ";
 		}
-		
-		if ($this->groupInfo) {
-			$this->joins[] = " LEFT JOIN group_in_curated_list ON group_in_curated_list.curated_list_id = curated_list_information.id AND   ".
-					" group_in_curated_list.group_id = :group_id AND group_in_curated_list.removed_at IS NULL ";
-			$this->params['group_id'] = $this->groupInfo->getId();
-			$this->select[] =  " group_in_curated_list.added_at AS is_group_in_list ";
-		}
 	}
 	
 	protected function buildStat() {
@@ -84,7 +69,7 @@ class CuratedListRepositoryBuilder  extends BaseRepositoryBuilder {
 		
 		$sql = "SELECT ".  implode(",", $this->select)." FROM curated_list_information ".
 				implode(" ",$this->joins).
-				($this->where ? " WHERE ".implode(" AND ", $this->where) : '').
+				" WHERE ".implode(" AND ", $this->where).
 				" ORDER BY curated_list_information.title ASC ";
 	
 		$this->stat = $DB->prepare($sql);

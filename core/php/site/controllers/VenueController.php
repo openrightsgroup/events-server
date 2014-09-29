@@ -251,7 +251,7 @@ class VenueController {
 						$mediaInVenueRepo->add($media, $this->parameters['venue'], userGetCurrent());
 						
 						$app['flashmessages']->addMessage('Picture added!');
-						return $app->redirect("/venue/".$this->parameters['venue']->getSlug());
+						return $app->redirect("/venue/".$this->parameters['venue']->getSlugForURL());
 						
 					}
 					
@@ -286,7 +286,7 @@ class VenueController {
 			}
 		}
 		
-		return $app->redirect("/venue/".$this->parameters['venue']->getSlug().'/media');
+		return $app->redirect("/venue/".$this->parameters['venue']->getSlugForURL().'/media');
 	}
 	
 	function mediaAddExisting($slug, Request $request, Application $app) {		
@@ -301,7 +301,7 @@ class VenueController {
 				$mediaInVenueRepo = new MediaInVenueRepository();
 				$mediaInVenueRepo->add($media, $this->parameters['venue'], userGetCurrent());
 				$app['flashmessages']->addMessage('Added!');
-				return $app->redirect("/venue/".$this->parameters['venue']->getSlug().'/');
+				return $app->redirect("/venue/".$this->parameters['venue']->getSlugForURL().'/');
 			}
 		}
 		
@@ -322,27 +322,11 @@ class VenueController {
 		
 		if ($request->request->get('area') && $request->request->get('CSFRToken') == $app['websession']->getCSFRToken()) {
 			
-			if ($request->request->get('area') == 'new' && trim($request->request->get('newAreaTitle')) && $this->parameters['country']) {
-				
-				$area = new AreaModel();
-				$area->setTitle(trim($request->request->get('newAreaTitle')));
-				
-				$areaRepository = new AreaRepository();
-				$areaRepository->create($area, $this->parameters['area'], $app['currentSite'], $this->parameters['country'], userGetCurrent());
-				
-				$this->parameters['venue']->setAreaId($area->getId());
-				$venueRepository = new VenueRepository();
-				$venueRepository->edit($this->parameters['venue'], userGetCurrent());
-				
-				$areaRepository->buildCacheAreaHasParent($area);
-				
-				$app['flashmessages']->addMessage('Thank you; venue updated!');
-				
-			} elseif (intval($request->request->get('area'))) {
+			if (intval($request->request->get('area'))) {
 				
 				$areaRepository = new AreaRepository();
 				$area = $areaRepository->loadBySlug($app['currentSite'], $request->request->get('area'));
-				if ($area) {
+				if ($area && (!$this->parameters['area'] || $area->getId() != $this->parameters['area']->getId())) {
 
 					$this->parameters['venue']->setAreaId($area->getId());
 					$venueRepository = new VenueRepository();
@@ -356,7 +340,7 @@ class VenueController {
 		}
 		
 		
-		return $app->redirect("/venue/".$this->parameters['venue']->getSlug().'/');
+		return $app->redirect("/venue/".$this->parameters['venue']->getSlugForURL().'/');
 
 	}
 	
@@ -384,7 +368,7 @@ class VenueController {
 				$venueRepository = new VenueRepository();
 				$venueRepository->delete($this->parameters['venue'], userGetCurrent());
 				
-				return $app->redirect("/venue/".$this->parameters['venue']->getSlug());
+				return $app->redirect("/venue/".$this->parameters['venue']->getSlugForURL());
 				
 			}
 		}

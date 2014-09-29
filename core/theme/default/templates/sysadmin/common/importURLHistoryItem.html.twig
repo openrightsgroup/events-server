@@ -5,18 +5,18 @@
  # @copyright (c) 2013-2014, JMB Technology Limited, http://jmbtechnology.co.uk/
  # @author James Baster <james@jarofgreen.co.uk>
  #}
-<li class="group">
+<li class="importurl">
 	<div class="icon">
 		<a href="#">
-			<img src="/theme/default/imgsysadmin/historyGroupIcon.png" alt="Group" title="Group">
+			<img src="/theme/default/img/historyImportURLIcon.png" alt="Tag" title="Tag">
 		</a>
 	</div>
-	<div class="title">{# <a href="/group/{{ historyItem.groupSlug }}"> #}{{ historyItem.title }}{# </a> #}</div>
+	<div class="title">{# <a href="/importurl/{{ historyItem.importURLSlug }}"> #}{{ historyItem.title }}{# </a> #}</div>
 	{% if historyItem.getIsNew %}
 		<div class="new">New!</div>
 	{% endif %}
 	{% if historyItem.isAnyChangeFlagsUnknown %}
-		<div>{{ historyItem.description | nl2br  }}</div>
+		<div>{{ historyItem.title | nl2br  }}</div>
 	{% else %}
 		{% if historyItem.getTitleChanged %}
 			<div class="fieldChanged">
@@ -24,30 +24,30 @@
 				<div class="value">{{ historyItem.title }}</div>
 			</div>
 		{%endif %}
-		{% if historyItem.getDescriptionChanged %}
+		{% if historyItem.getIsEnabledChanged %}
 			<div class="fieldChanged">
-				<div class="field">Description changed:</div>
-				<div class="value">{{ historyItem.description }}</div>
+				<div class="field">Is Enabled changed:</div>
+				<div class="value">{% if historyItem.isEnabled %}Enabled{% else %}Disabled{% endif %}</div>
 			</div>
 		{%endif %}
-		{% if historyItem.getUrlChanged %}
+		{% if historyItem.getExpiredAtChanged %}
 			<div class="fieldChanged">
-				<div class="field">URL changed:</div>
-				<div class="value">{{ historyItem.url }}</div>
+				<div class="field">Expired changed:</div>
+				<div class="value">{% if historyItem.expiredAt %}Expired{% else %}Not Expired{% endif %}</div>
 			</div>
 		{%endif %}
-		{% if historyItem.getTwitterUsernameChanged %}
+		{% if historyItem.getCountryIdChanged %}
 			<div class="fieldChanged">
-				<div class="field">Twitter changed:</div>
-				<div class="value">{{ historyItem.twitterUsername }}</div>
+				<div class="field">Country changed:</div>
+				<div class="value">changed{# TODO #}</div>
 			</div>
-		{%endif %}
-		{% if historyItem.getIsDeletedChanged %}
+		{% endif %}
+		{% if historyItem.getAreaIdChanged %}
 			<div class="fieldChanged">
-				<div class="field">Status changed:</div>
-				<div class="value">{% if historyItem.getIsDeleted %}Deleted!{% else %}Restored!{% endif %}</div>
+				<div class="field">Area changed:</div>
+				<div class="value">changed{# TODO #}</div>
 			</div>
-		{%endif %}
+		{% endif %}
 	{% endif %}
 	<div class="created">
 		Edited at 

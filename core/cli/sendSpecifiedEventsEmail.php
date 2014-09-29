@@ -38,6 +38,11 @@ require_once APP_ROOT_DIR.'/core/php/autoloadCLI.php';
  * Optional filters:
  * AreaID=1
  *
+ * Can also optionally list child areas between intro and events:
+ *
+ * ListChildAreas=true
+ * ListChildAreasIntro=Browse events in:
+ *
  * By using different environments and different headers in the ini file you can 
  * do stuff like sending a test email to yourself before sending the real email 
  * to others.
@@ -101,6 +106,7 @@ if ($thisconfig->hasValue("Month") && $thisconfig->hasValue("Year")) {
 $calendar->setStartAndEnd($start, $end);
 
 // ######################################################### Filters?
+$area = null;
 if ($thisconfig->hasValue('AreaID')) {
 	$repo = new repositories\AreaRepository();
 	$area = $repo->loadById($thisconfig->get('AreaID'));
@@ -112,35 +118,45 @@ if ($thisconfig->hasValue('AreaID')) {
 }
 
 // ######################################################### Get Data
+$calendar->getEventRepositoryBuilder()->setIncludeAreaInformation(true);
+
 $calData = $calendar->getData();
 
-$venueData = array();
-$venueRepoBuilder = new VenueRepositoryBuilder();
-$venueRepoBuilder->setSite($site);
-$areaRepository = new AreaRepository();
-foreach($venueRepoBuilder->fetchAll() as $venue) {
-	$venueData[$venue->getId()] = array('area'=>array());
-	$area = $venue->getAreaId() ? $areaRepository->loadById($venue->getAreaId()) : null;
+
+$childAreas = array();
+if ($thisconfig->getBoolean('ListChildAreas')) {
+	$areaRepoBuilder = new \repositories\builders\AreaRepositoryBuilder();
+	$areaRepoBuilder->setSite($site);
+	$areaRepoBuilder->setIncludeDeleted(false);
 	if ($area) {
-		$venueData[$venue->getId()]['area'] = array('title'=>$area->getTitle());
+		$areaRepoBuilder->setParentArea($area);
+	} else {
+		$areaRepoBuilder->setNoParentArea(true);
 	}
+	$childAreas = $areaRepoBuilder->fetchAll();
 }
 
-// ######################################################### Build Email Content, show user. 
+// ######################################################### Build Email Content, show user.
+configureAppForSite($site);
+
 $messageText = $app['twig']->render('email/sendSpecifiedEventsEmail.cli.txt.twig', array(
 	'data'=>$calData,
-	'venueData'=>$venueData,
 	'currentSite'=>$site,
 	'currentTimeZone'=>$thisconfig->get('TimeZone'),
 	'intro'=>  file_get_contents($configDataDir.'/'.$thisconfig->get('IntroTXTFile')),
+	'listChildAreas'=>$thisconfig->getBoolean('ListChildAreas'),
+	'listChildAreasIntro'=>$thisconfig->get('ListChildAreasIntro'),
+	'childAreas'=>$childAreas,
 ));
 
 $messageHTML = $app['twig']->render('email/sendSpecifiedEventsEmail.cli.html.twig', array(
 	'data'=>$calData,
-	'venueData'=>$venueData,
 	'currentSite'=>$site,
 	'currentTimeZone'=>$thisconfig->get('TimeZone'),
 	'intro'=> file_get_contents($configDataDir.'/'.$thisconfig->get('IntroHTMLFile')),
+	'listChildAreas'=>$thisconfig->getBoolean('ListChildAreas'),
+	'listChildAreasIntro'=>$thisconfig->get('ListChildAreasIntro'),
+	'childAreas'=>$childAreas,
 ));
 
 if ($CONFIG->isDebug) file_put_contents('/tmp/sendEventsEmail.txt', $messageText);

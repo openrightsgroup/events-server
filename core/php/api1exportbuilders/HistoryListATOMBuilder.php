@@ -72,6 +72,9 @@ class HistoryListATOMBuilder extends BaseHistoryListBuilder {
 		$txt .= '<title>'.  $this->getData($history->getSummaryDisplay()).'</title>';
 
 		$txt .= '<summary>';
+		if ($history->getIsNew()) {
+				$txt .= 'New! ';
+		}
 		if ($history->isAnyChangeFlagsUnknown()) {
 			$txt .= $this->getBigData($history->getDescription());
 		} else {
@@ -136,6 +139,9 @@ class HistoryListATOMBuilder extends BaseHistoryListBuilder {
 		$txt .= '<title>'.  $this->getData($history->getTitle()).'</title>';
 
 		$txt .= '<summary>';
+		if ($history->getIsNew()) {
+				$txt .= 'New! ';
+		}
 		if ($history->isAnyChangeFlagsUnknown()) {
 			$txt .= $this->getBigData($history->getDescription());
 		} else {
@@ -180,6 +186,9 @@ class HistoryListATOMBuilder extends BaseHistoryListBuilder {
 		$txt .= '<title>'.  $this->getData($history->getTitle()).'</title>';
 
 		$txt .= '<summary>';
+		if ($history->getIsNew()) {
+				$txt .= 'New! ';
+		}
 		if ($history->isAnyChangeFlagsUnknown()) {
 			$txt .= $this->getBigData($history->getDescription());
 		} else {
@@ -217,6 +226,9 @@ class HistoryListATOMBuilder extends BaseHistoryListBuilder {
 		$txt .= '<title>'.  $this->getData($history->getTitle()).'</title>';
 
 		$txt .= '<summary>';
+		if ($history->getIsNew()) {
+				$txt .= 'New! ';
+		}
 		if ($history->isAnyChangeFlagsUnknown()) {
 			$txt .= $this->getBigData($history->getDescription());
 		} else {
@@ -269,6 +281,9 @@ class HistoryListATOMBuilder extends BaseHistoryListBuilder {
 		$txt .= '<title>'.  $this->getData($history->getTitle()).'</title>';
 
 		$txt .= '<summary>';
+		if ($history->getIsNew()) {
+				$txt .= 'New! ';
+		}
 		if ($history->isAnyChangeFlagsUnknown()) {
 			$txt .= $this->getBigData($history->getDescription());
 		} else {
@@ -312,6 +327,9 @@ class HistoryListATOMBuilder extends BaseHistoryListBuilder {
 		$txt .= '<title>'.  $this->getData($history->getTitle()).'</title>';
 
 		$txt .= '<summary>';
+		if ($history->getIsNew()) {
+				$txt .= 'New! ';
+		}
 		if ($history->isAnyChangeFlagsUnknown()) {
 			$txt .= $this->getBigData($history->getTitle());
 		} else {
@@ -328,7 +346,7 @@ class HistoryListATOMBuilder extends BaseHistoryListBuilder {
 				$txt .= 'Enabled Changed: '.($history->getIsEnabled() ? "Enabled":"Disabled")."\n\n";
 			}
 			if ($history->getExpiredAtChanged()) {
-				$txt .= 'Exprired Changed: '.($history->getExpiredAt() ? "Expired":"Not Expired")."\n\n";
+				$txt .= 'Expired Changed: '.($history->getExpiredAt() ? "Expired":"Not Expired")."\n\n";
 			}
 		}
 		$txt .= '</summary>';
